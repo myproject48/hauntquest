@@ -1,0 +1,16 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Dart format and targeted analysis on save",
+      "trigger": "PostFileSave",
+      "description": "After you save a Dart file: read-only format check (dart format --output=none), dart analyze on lib/domain, lib/content and lib/app files, and the focused test command to run after game-logic changes. After saving .gitignore: confirms build artifacts stay ignored and .kiro/ stays tracked. Never edits files, so it cannot re-trigger itself.",
+      "matcher": "(\\.dart|(^|/)\\.gitignore|assets/content/.*\\.json)$",
+      "action": {
+        "type": "command",
+        "command": "sh tool/hooks/run.sh post-edit",
+        "timeout": 90
+      }
+    }
+  ]
+}

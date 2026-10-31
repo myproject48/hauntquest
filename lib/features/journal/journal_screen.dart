@@ -17,6 +17,8 @@ import '../../core/widgets/manor_panel.dart';
 import '../../core/widgets/manor_scaffold.dart';
 import '../../core/widgets/pressable_scale.dart';
 import '../inventory/inventory_screen.dart';
+import '../dialogue/dialogue_screen.dart';
+import '../guide/guide_panel.dart';
 
 /// The investigator's journal: an evidence board of found clues joined by
 /// thread, and a page of the people met so far.
@@ -27,9 +29,16 @@ class JournalScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return DefaultTabController(
-      length: 2,
+      length: 3,
       child: ManorScaffold(
         title: 'Journal',
+        actions: [
+          IconButton(
+            tooltip: 'The Whispering Guide',
+            icon: const Icon(Icons.flare_rounded),
+            onPressed: () => showWhisperingGuide(context),
+          ),
+        ],
         subtitle: 'Evidence and people',
         maxWidth: double.infinity,
         body: Column(
@@ -37,6 +46,8 @@ class JournalScreen extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
               child: TabBar(
+                isScrollable: true,
+                tabAlignment: TabAlignment.start,
                 indicatorColor: AppColors.goldLight,
                 indicatorWeight: 3,
                 labelColor: AppColors.goldLight,
@@ -47,11 +58,14 @@ class JournalScreen extends StatelessWidget {
                 tabs: const [
                   Tab(text: 'EVIDENCE', height: 48),
                   Tab(text: 'PEOPLE', height: 48),
+                  Tab(text: 'STORY', height: 48),
                 ],
               ),
             ),
             const Expanded(
-              child: TabBarView(children: [_EvidenceTab(), _PeopleTab()]),
+              child: TabBarView(
+                children: [_EvidenceTab(), _PeopleTab(), _StoryTab()],
+              ),
             ),
           ],
         ),
@@ -88,9 +102,11 @@ class _EvidenceTab extends StatelessWidget {
     final services = AppScope.of(context);
     final content = services.content;
     return ListenableBuilder(
-      listenable: services.preview,
+      listenable: services.game,
       builder: (context, _) {
-        final owned = services.preview.inventory.toSet();
+        // Evidence counts everything ever found, including used-up items.
+        final owned = services.game.state.acquiredItemIds;
+        final carried = services.game.inventory.toSet();
         return LayoutBuilder(
           builder: (context, box) {
             final cols = box.maxWidth >= 900
@@ -130,55 +146,64 @@ class _EvidenceTab extends StatelessWidget {
 
             return SingleChildScrollView(
               padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
-              child: Center(
-                child: SizedBox(
-                  width: boardW,
-                  height: boardH,
-                  child: Stack(
-                    children: [
-                      Positioned.fill(
-                        child: ExcludeSemantics(
-                          child: CustomPaint(
-                            painter: _BoardPainter(
-                              casePin: caseRect.bottomCenter.translate(0, -6),
-                              pins: {
-                                for (final e in centers.entries)
-                                  if (owned.contains(e.key)) e.key: e.value,
-                              },
-                              links: links,
-                            ),
-                          ),
-                        ),
-                      ),
-                      Positioned.fromRect(
-                        rect: caseRect,
-                        child: FadeSlideIn(
-                          child: _CaseCard(premise: content.story.premise),
-                        ),
-                      ),
-                      for (final (i, item) in items.indexed)
-                        Positioned(
-                          left: pos(i).dx,
-                          top: pos(i).dy,
-                          width: cardW,
-                          height: cardH,
-                          child: FadeSlideIn(
-                            delay: Duration(milliseconds: 60 + i * 50),
-                            child: Transform.rotate(
-                              angle: ((i * 37) % 7 - 3) * 0.014,
-                              child: _EvidenceCard(
-                                item: item,
-                                found: owned.contains(item.id),
-                                onTap: () => context.pushMist(
-                                  InventoryScreen(initialItemId: item.id),
+              child: Column(
+                children: [
+                  Center(
+                    child: SizedBox(
+                      width: boardW,
+                      height: boardH,
+                      child: Stack(
+                        children: [
+                          Positioned.fill(
+                            child: ExcludeSemantics(
+                              child: CustomPaint(
+                                painter: _BoardPainter(
+                                  casePin: caseRect.bottomCenter.translate(
+                                    0,
+                                    -6,
+                                  ),
+                                  pins: {
+                                    for (final e in centers.entries)
+                                      if (owned.contains(e.key)) e.key: e.value,
+                                  },
+                                  links: links,
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                    ],
+                          Positioned.fromRect(
+                            rect: caseRect,
+                            child: FadeSlideIn(
+                              child: _CaseCard(premise: content.story.premise),
+                            ),
+                          ),
+                          for (final (i, item) in items.indexed)
+                            Positioned(
+                              left: pos(i).dx,
+                              top: pos(i).dy,
+                              width: cardW,
+                              height: cardH,
+                              child: FadeSlideIn(
+                                delay: Duration(milliseconds: 60 + i * 50),
+                                child: Transform.rotate(
+                                  angle: ((i * 37) % 7 - 3) * 0.014,
+                                  child: _EvidenceCard(
+                                    item: item,
+                                    found: owned.contains(item.id),
+                                    used: !carried.contains(item.id),
+                                    onTap: () => context.pushMist(
+                                      InventoryScreen(initialItemId: item.id),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
                   ),
-                ),
+                  const _StoryConnections(),
+                ],
               ),
             );
           },
@@ -242,10 +267,14 @@ class _EvidenceCard extends StatelessWidget {
     required this.item,
     required this.found,
     required this.onTap,
+    this.used = false,
   });
 
   final ItemDef item;
   final bool found;
+
+  /// Found earlier and since used up; shown but not openable.
+  final bool used;
   final VoidCallback onTap;
 
   @override
@@ -279,7 +308,7 @@ class _EvidenceCard extends StatelessWidget {
               ),
             ),
             Text(
-              found ? item.name : 'Not found',
+              found ? (used ? '${item.name} (used)' : item.name) : 'Not found',
               maxLines: 2,
               textAlign: TextAlign.center,
               overflow: TextOverflow.ellipsis,
@@ -296,6 +325,12 @@ class _EvidenceCard extends StatelessWidget {
 
     if (!found) {
       return Semantics(label: 'Evidence not found yet', child: card);
+    }
+    if (used) {
+      return Semantics(
+        label: '${item.name}, evidence, already used',
+        child: card,
+      );
     }
     return PressableScale(
       onTap: onTap,
@@ -401,9 +436,9 @@ class _PeopleTab extends StatelessWidget {
     final services = AppScope.of(context);
     final theme = Theme.of(context);
     return ListenableBuilder(
-      listenable: services.preview,
+      listenable: services.game,
       builder: (context, _) {
-        final known = services.preview.knownCharacterIds;
+        final known = services.game.knownCharacterIds;
         return ListView(
           padding: const EdgeInsets.all(AppSpacing.lg),
           children: [
@@ -483,6 +518,175 @@ class _PeopleTab extends StatelessWidget {
           ],
         );
       },
+    );
+  }
+}
+
+/// A notebook of discoveries and immutable conversation records.
+class _StoryTab extends StatelessWidget {
+  const _StoryTab();
+  @override
+  Widget build(BuildContext context) {
+    final services = AppScope.of(context);
+    final game = services.game;
+    return ListenableBuilder(
+      listenable: game,
+      builder: (context, _) {
+        final entries = game.engine.narrative.journal(game.state);
+        return ListView(
+          padding: const EdgeInsets.all(AppSpacing.lg),
+          children: [
+            Text('FIELD NOTES', style: Theme.of(context).textTheme.labelLarge),
+            const SizedBox(height: AppSpacing.sm),
+            Text(
+              '${entries.length} discoveries recorded. New evidence updates these pages automatically.',
+            ),
+            const SizedBox(height: AppSpacing.md),
+            for (final id in game.state.pendingChoiceIds)
+              if (services.content.choiceById(id) case final choice?)
+                if (game.choiceAvailable(choice))
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: OutlinedButton.icon(
+                      onPressed: () =>
+                          context.pushMist(DialogueScreen(choiceId: id)),
+                      icon: const Icon(Icons.forum_outlined),
+                      label: Text(
+                        'Continue conversation with ${services.content.characterById(choice.speakerId)!.name}',
+                      ),
+                    ),
+                  ),
+            for (final entry in entries.reversed)
+              Padding(
+                key: ValueKey('journal-${entry.id}'),
+                padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                child: ManorPanel(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        entry.title,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      const SizedBox(height: AppSpacing.sm),
+                      Text(entry.text.resolve(game.state)),
+                    ],
+                  ),
+                ),
+              ),
+            const SizedBox(height: AppSpacing.lg),
+            Text(
+              'CONVERSATIONS',
+              style: Theme.of(context).textTheme.labelLarge,
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            if (game.state.resolvedChoices.isEmpty)
+              const Text('No conversations recorded yet.'),
+            for (final choice in services.content.choices)
+              if (game.engine.narrative.transcript(game.state, choice)
+                  case final record?)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                  child: ManorPanel(
+                    child: ExpansionTile(
+                      tilePadding: EdgeInsets.zero,
+                      title: Text(
+                        '${services.content.characterById(choice.speakerId)!.name} • Recorded conversation',
+                      ),
+                      children: [
+                        Text(record.prompt),
+                        const SizedBox(height: 12),
+                        Text(
+                          'You chose: ${choice.options.firstWhere((o) => o.id == game.state.resolvedChoices[choice.id]).label}',
+                        ),
+                        const SizedBox(height: 12),
+                        Text(record.response),
+                        TextButton(
+                          onPressed: () => context.pushMist(
+                            DialogueScreen(choiceId: choice.id),
+                          ),
+                          child: const Text('Read transcript'),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+/// Each visible red thread states an authored inference. Both endpoint
+/// discoveries must be known; hidden clues cannot leak through the board.
+class _StoryConnections extends StatelessWidget {
+  const _StoryConnections();
+  @override
+  Widget build(BuildContext context) {
+    final services = AppScope.of(context);
+    final game = services.game;
+    final links = game.engine.narrative.connections(game.state);
+    final entries = {
+      for (final e in services.content.story.journalEntries) e.id: e,
+    };
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 760),
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.lg),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                'CONNECTED DISCOVERIES',
+                style: Theme.of(context).textTheme.labelLarge,
+              ),
+              const SizedBox(height: 12),
+              if (links.isEmpty)
+                const Text(
+                  'Discover related clues to connect the evidence. No conclusions yet.',
+                ),
+              for (final link in links)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: Semantics(
+                    container: true,
+                    label:
+                        '${entries[link.from]!.title} connects to ${entries[link.to]!.title}. ${link.label}',
+                    child: ManorPanel(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Wrap(
+                            spacing: 12,
+                            runSpacing: 8,
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            children: [
+                              const Icon(
+                                Icons.push_pin,
+                                color: AppColors.antiqueGold,
+                                size: 18,
+                              ),
+                              Text(entries[link.from]!.title),
+                              const Icon(
+                                Icons.arrow_downward,
+                                color: AppColors.danger,
+                              ),
+                              Text(entries[link.to]!.title),
+                            ],
+                          ),
+                          const Divider(color: AppColors.danger, thickness: 2),
+                          Text(link.label),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

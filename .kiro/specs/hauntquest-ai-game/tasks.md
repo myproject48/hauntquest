@@ -12,13 +12,16 @@ Conventions:
 
 ## Phase A: Vertical Slice
 
-- [ ] 1. Domain models and state serialization
-  - [ ] 1.1 Create `lib/domain/models/` with `PuzzleStatus`, `PuzzleProgress`, `StoryFlags`, `GameState`, `AppPhase`, and value equality
+- [x] 1. Domain models and state serialization
+  - [x] 1.1 Create `lib/domain/models/` with `PuzzleStatus`, `PuzzleProgress`, `StoryFlags`, `GameState`, `AppPhase`, and value equality
+    - Done as one immutable `GameState` (`lib/domain/models/game_state.dart`); puzzle progress is `solvedPuzzleIds` + `puzzleAttempts`, flags are `Map<String,int>`. No `AppPhase`; screens and routes play that role.
     - Immutable classes with `copyWith`, `==`, `hashCode`
     - _Requirements: 16.1, 16.2, 16.4_
-  - [ ] 1.2 Implement `toJson`/`fromJson` using only primitive JSON types and `schemaVersion`
+  - [x] 1.2 Implement `toJson`/`fromJson` using only primitive JSON types and `schemaVersion`
+    - Done: primitive-only JSON with `schemaVersion`.
     - _Requirements: 8.4, 16.5_
-  - [ ] 1.3 Write unit tests for round-trip equality and immutability
+  - [x] 1.3 Write unit tests for round-trip equality and immutability
+    - Done: `test/domain/game_engine_test.dart` (round trip, immutability).
     - Verify: `flutter test test/domain/models` passes
     - _Requirements: 8.9, 16.4_
   - _Depends on: none_
@@ -46,36 +49,45 @@ Conventions:
     - _Requirements: 3.6, 6.3_
   - _Depends on: 2_
 
-- [ ] 4. Game engine core: movement, examine, items
-  - [ ] 4.1 Implement `GameEngine` with `newGame`, `moveToRoom`, `examineHotspot`, `inspectItem`, `useItemOnHotspot`, and idempotent `applyEffect`
+- [x] 4. Game engine core: movement, examine, items
+  - [x] 4.1 Implement `GameEngine` with `newGame`, `moveToRoom`, `examineHotspot`, `inspectItem`, `useItemOnHotspot`, and idempotent `applyEffect`
+    - Done: `GameEngine` (`move`, `travelTo`, `examine`, `inspectItem`, `useItem`, idempotent effects).
     - Returns `EngineResult(state, events)`; no Flutter imports
     - _Requirements: 1.2, 2.3, 2.4, 2.5, 3.2, 3.3, 3.4, 3.5, 4.1, 4.5, 4.6, 4.9, 16.6_
-  - [ ] 4.2 Define `GameEvent` hierarchy and `ActionRejected`
+  - [x] 4.2 Define `GameEvent` hierarchy and `ActionRejected`
+    - Done: `lib/domain/engine/game_events.dart`, with `ActionRejected` carrying a message and an optional hint.
     - _Requirements: 16.6_
-  - [ ] 4.3 Unit tests: examining twice grants an item once; locked exit blocks; use-rule success and failure; inventory order preserved
+  - [x] 4.3 Unit tests: examining twice grants an item once; locked exit blocks; use-rule success and failure; inventory order preserved
+    - Done.
     - Verify: `flutter test test/domain/engine` passes
     - _Requirements: 2.4, 3.3, 4.7_
   - _Depends on: 2, 3_
 
 - [ ] 5. Puzzle framework and slice evaluators (P1, P2, P3)
-  - [ ] 5.1 Define `PuzzleEvaluator`, `PuzzleResult`, `Verdict`, and the registry keyed by `kind`
+  - [x] 5.1 Define `PuzzleEvaluator`, `PuzzleResult`, `Verdict`, and the registry keyed by `kind`
+    - Done as `evaluatePuzzle` with a `switch` on kind (no registry needed).
     - _Requirements: 5.5_
   - [x] 5.2 Implement `useItem`, `sequence`, and `cipher` evaluators
     - Pure evaluators for ALL seven kinds exist in `lib/domain/puzzles/puzzle_evaluator.dart` (tested). Remaining for task 5: the status machine in the engine (5.3).
     - _Requirements: 5.1, 5.5_
-  - [ ] 5.3 Implement `GameEngine.submitPuzzle` with the status machine (`locked → available → inProgress → solved`), attempts counter, and idempotent `onSolved` effects
+  - [x] 5.3 Implement `GameEngine.submitPuzzle` with the status machine (`locked → available → inProgress → solved`), attempts counter, and idempotent `onSolved` effects
+    - Done: `PuzzleAccess` (locked / missingItems / available / solved), attempts, idempotent rewards. No separate inProgress state.
     - _Requirements: 5.2, 5.3, 5.4, 5.6, 5.7, 5.8, 5.10_
-  - [ ] 5.4 Unit tests per puzzle (correct, incorrect, partial), solved never regresses, repeated submission does not duplicate items
+  - [x] 5.4 Unit tests per puzzle (correct, incorrect, partial), solved never regresses, repeated submission does not duplicate items
+    - Done.
     - Verify: `flutter test test/domain/puzzles` passes
     - _Requirements: 5.8_
   - _Depends on: 4_
 
-- [ ] 6. Story choices and ending resolver
-  - [ ] 6.1 Implement `ChoiceResolver` (preconditions, disabled reasons, one-time resolution) and engine action `resolveChoice`
+- [x] 6. Story choices and ending resolver
+  - [x] 6.1 Implement `ChoiceResolver` (preconditions, disabled reasons, one-time resolution) and engine action `resolveChoice`
+    - Done inside `GameEngine.resolveChoice` (availability, disabled reasons, one-time).
     - _Requirements: 7.2, 7.3, 7.6_
-  - [ ] 6.2 Implement `EndingResolver` with ordered rules from `endings.json`; engine action `checkEnding`
+  - [x] 6.2 Implement `EndingResolver` with ordered rules from `endings.json`; engine action `checkEnding`
+    - Done: the final choice resolves the ending via `GameContent.resolveEnding`.
     - _Requirements: 7.7, 11.2, 11.8_
-  - [ ] 6.3 Table-driven test over all 48 flag combinations (`truthFragments` 0–5 × `mercy` 0–3 × `acceptedBargain` 0–1) asserting exactly one ending
+  - [x] 6.3 Table-driven test over all 48 flag combinations (`truthFragments` 0–5 × `mercy` 0–3 × `acceptedBargain` 0–1) asserting exactly one ending
+    - Done earlier in `test/content/content_validation_test.dart`; full playthroughs to all three endings in `game_engine_test.dart`.
     - Verify: `flutter test test/domain/story` passes
     - _Requirements: 11.8_
   - _Depends on: 4_
@@ -111,11 +123,13 @@ Conventions:
   - _Depends on: 1, 3_
 
 - [ ] 10. GameController and app wiring
-  - [ ] 10.1 Implement `GameController` (ValueNotifiers for state and phase, `dispatch`, events stream, phase transition table)
+  - [x] 10.1 Implement `GameController` (ValueNotifiers for state and phase, `dispatch`, events stream, phase transition table)
+    - Done as `GameController` (ChangeNotifier, feedback notes, review-mode snapshot). No phase table.
     - _Requirements: 16.2, 16.3_
   - [ ] 10.2 Add debounced autosave and `AppLifecycleListener` flush
     - _Requirements: 1.5, 8.1, 8.2, 13.5_
-  - [ ] 10.3 Implement `AppScope` (InheritedWidget with `AppServices`) and `SettingsController`; wire into `HauntQuestApp`
+  - [x] 10.3 Implement `AppScope` (InheritedWidget with `AppServices`) and `SettingsController`; wire into `HauntQuestApp`
+    - Done.
     - Services injectable for tests
     - _Requirements: 9.3_
   - [ ] 10.4 Unit tests: illegal phase transitions rejected; autosave called after state-changing events; Continue restores state
@@ -145,27 +159,32 @@ Conventions:
   - [x] 12.2 Implement `HotspotLayer` from normalized areas with 48 dp minimum hit area, semantic labels, and optional highlight
     - Done in `RoomStage`: 48 dp minimum, semantic labels, kind badges (icon, not color only).
     - _Requirements: 3.1, 3.6, 3.8, 14.5_
-  - [ ] 12.3 Implement `GameScreen` (Stack with scene, hotspot layer, HUD, overlay host) and room fade transition honoring reduced motion
+  - [x] 12.3 Implement `GameScreen` (Stack with scene, hotspot layer, HUD, overlay host) and room fade transition honoring reduced motion
+    - Done: `RoomScreen` driven by `GameController`, state-driven markers and art, feedback banner, auto-opening conversations and ending.
     - UI done as `RoomScreen` + sheets, with fade transition. Remaining: drive it from `GameController` instead of `PreviewController`.
     - _Requirements: 2.3, 2.6, 13.4_
   - [x] 12.4 Text box overlay for descriptions and locked messages
     - Done: examine sheet; locked exits explain via snackbar.
     - _Requirements: 2.4, 3.5_
-  - [ ] 12.5 Widget tests: tapping a hotspot dispatches examine; locked exit shows message; semantics labels present; layouts at 360, 700, 1100 dp widths
+  - [x] 12.5 Widget tests: tapping a hotspot dispatches examine; locked exit shows message; semantics labels present; layouts at 360, 700, 1100 dp widths
+    - Done: `test/ui/exploration_test.dart` (examine, locked, unlock, repeat, persistence, positioning at 4 sizes).
     - Layout, locked-exit and semantics tests done (`test/ui/`). Remaining: "dispatches examine" once the engine exists.
     - Verify: `flutter test test/features/game` passes
     - _Requirements: 3.2, 3.6, 14.1_
   - _Depends on: 10, 11_
 
 - [ ] 13. Inventory and item inspect
-  - [ ] 13.1 Inventory overlay reachable from the HUD in one tap, ordered by acquisition
+  - [x] 13.1 Inventory overlay reachable from the HUD in one tap, ordered by acquisition
+    - Done.
     - _Requirements: 4.2, 4.7_
   - [x] 13.2 Item inspect view with `ItemIcon` painter and detail text; marks the item inspected
     - Done: inspect view with pedestal art and detail text. Remaining: mark inspected in game state.
     - _Requirements: 4.3, 4.4, 4.9_
-  - [ ] 13.3 "Use on hotspot" selection mode
+  - [x] 13.3 "Use on hotspot" selection mode
+    - Done: "Use an item" in the object sheet.
     - _Requirements: 3.4_
-  - [ ] 13.4 Pickup toast
+  - [x] 13.4 Pickup toast
+    - Done: feedback banner plus a FOUND row in the sheet.
     - _Requirements: 4.1_
   - [ ] 13.5 Widget tests including 20 items at 200% text scale with no overflow
     - Verify: `flutter test test/features/inventory` passes
@@ -185,7 +204,8 @@ Conventions:
   - _Depends on: 12, 13_
 
 - [ ] 15. Choice panel and hint sheet UI
-  - [ ] 15.1 Choice panel with disabled options and reasons
+  - [x] 15.1 Choice panel with disabled options and reasons
+    - Done.
     - _Requirements: 7.3_
   - [ ] 15.2 Hint button on every gameplay screen opening a hint sheet that shows tiers progressively
     - _Requirements: 6.1, 6.4, 6.5_
@@ -213,7 +233,8 @@ Conventions:
 
 - [ ] 17. Ending screen (slice ending)
   - [ ] 17.0 Decide the slice scope. The authored story is a single chain through all five rooms, so a two-room slice cannot reach a real ending. Either (a) ship all five rooms with simple scenes in the slice, or (b) add an authored early-exit ending after P3. Record the decision here before building the ending screen
-  - [ ] 17.1 `EndingScreen` with epilogue, summary (puzzles solved, hints used, choices), and return to title / new adventure
+  - [x] 17.1 `EndingScreen` with epilogue, summary (puzzles solved, hints used, choices), and return to title / new adventure
+    - Done: run summary and Begin again when reached from play.
     - Screen done (`EndingScreen`, art and epilogue). Remaining: summary of the run and reaching it from the final choice.
     - _Requirements: 11.3, 11.4, 11.6_
   - [ ] 17.2 Record `endingsSeen` in meta store

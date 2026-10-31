@@ -138,6 +138,56 @@
           },
           "description": "A guest ledger lies open. The last entry is in your own handwriting: 'Arrived. The manor is listening.' You do not remember writing it.",
           "repeatText": "The ledger's last line has not changed. The ink looks wet."
+        },
+        {
+          "id": "q10_symbol_seal",
+          "label": "The Symbol Seal",
+          "semanticLabel": "The Symbol Seal, puzzle apparatus",
+          "area": {
+            "x": 0.79,
+            "y": 0.83,
+            "w": 0.17,
+            "h": 0.13
+          },
+          "puzzleId": "p10_symbol_seal",
+          "description": "A brass alphabet reads: moon (☽) = L, diamond (◆) = I, star (✶) = A, circle (○) = C. The seal bears ☽ ◆ ☽ ✶ ○. Read left to right.",
+          "repeatText": {
+            "base": "A brass alphabet reads: moon (☽) = L, diamond (◆) = I, star (✶) = A, circle (○) = C. The seal bears ☽ ◆ ☽ ✶ ○. Read left to right.",
+            "variants": [
+              {
+                "when": {
+                  "type": "puzzleSolved",
+                  "id": "p10_symbol_seal"
+                },
+                "text": "The seal opens on Ottoline's pressed lilac. Her note reads: 'Wren stayed to help me. He did not abandon us.'"
+              }
+            ]
+          }
+        },
+        {
+          "id": "q14_mirror",
+          "label": "The Silver Mirror",
+          "semanticLabel": "The Silver Mirror, puzzle apparatus",
+          "area": {
+            "x": 0.45,
+            "y": 0.83,
+            "w": 0.17,
+            "h": 0.13
+          },
+          "puzzleId": "p14_mirror",
+          "description": "The silver mirror swaps left and right, never top and bottom. Copy the lit pattern as a reflection across the vertical line. Top: lit, dark, dark. Middle: dark, lit, dark. Bottom: lit, lit, dark.",
+          "repeatText": {
+            "base": "The silver mirror swaps left and right, never top and bottom. Copy the lit pattern as a reflection across the vertical line. Top: lit, dark, dark. Middle: dark, lit, dark. Bottom: lit, lit, dark.",
+            "variants": [
+              {
+                "when": {
+                  "type": "puzzleSolved",
+                  "id": "p14_mirror"
+                },
+                "text": "The mirror clears. Wren's reflection points at Maul's signet scratched into the damaged stabilizer."
+              }
+            ]
+          }
         }
       ]
     },
@@ -312,6 +362,56 @@
               "amount": 1
             }
           ]
+        },
+        {
+          "id": "q12_rune_gaps",
+          "label": "The Missing Runes",
+          "semanticLabel": "The Missing Runes, puzzle apparatus",
+          "area": {
+            "x": 0.42,
+            "y": 0.83,
+            "w": 0.17,
+            "h": 0.13
+          },
+          "puzzleId": "p12_rune_gaps",
+          "description": "A school tablet counts the ancient strokes: I = 1, II = 2, III = 3, IV = 4, V = 5, VI = 6. Above the lock: I, ?, III, ?, V, ?. Count upward one at a time.",
+          "repeatText": {
+            "base": "A school tablet counts the ancient strokes: I = 1, II = 2, III = 3, IV = 4, V = 5, VI = 6. Above the lock: I, ?, III, ?, V, ?. Count upward one at a time.",
+            "variants": [
+              {
+                "when": {
+                  "type": "puzzleSolved",
+                  "id": "p12_rune_gaps"
+                },
+                "text": "The tablet reveals a lesson: 'The Echo learns by repetition, as a child does. It is neither demon nor machine.'"
+              }
+            ]
+          }
+        },
+        {
+          "id": "q15_evidence",
+          "label": "The Evidence Board",
+          "semanticLabel": "The Evidence Board, puzzle apparatus",
+          "area": {
+            "x": 0.79,
+            "y": 0.84,
+            "w": 0.17,
+            "h": 0.13
+          },
+          "puzzleId": "p15_evidence",
+          "description": "Four records: the visitor arrived before the stabilizer was cut. The cut triggered the alarm. Ottoline disappeared after the alarm. Arrange arrival, sabotage, alarm and disappearance from earliest to latest.",
+          "repeatText": {
+            "base": "Four records: the visitor arrived before the stabilizer was cut. The cut triggered the alarm. Ottoline disappeared after the alarm. Arrange arrival, sabotage, alarm and disappearance from earliest to latest.",
+            "variants": [
+              {
+                "when": {
+                  "type": "puzzleSolved",
+                  "id": "p15_evidence"
+                },
+                "text": "The completed timeline proves Maul caused the failure before Ottoline vanished. Wren's testimony is corroborated."
+              }
+            ]
+          }
         }
       ]
     },
@@ -426,7 +526,7 @@
           "semanticLabel": "Brass tuning dial with a numbered scale",
           "area": {
             "x": 0.06,
-            "y": 0.1,
+            "y": 0.22,
             "w": 0.26,
             "h": 0.24
           },
@@ -473,6 +573,31 @@
                   "value": 1
                 },
                 "text": "The horn rattles faintly in its bracket. It has not forgotten your tone."
+              }
+            ]
+          }
+        },
+        {
+          "id": "q13_alchemy",
+          "label": "Moonwater Alchemy",
+          "semanticLabel": "Moonwater Alchemy, puzzle apparatus",
+          "area": {
+            "x": 0.79,
+            "y": 0.83,
+            "w": 0.17,
+            "h": 0.13
+          },
+          "puzzleId": "p13_alchemy",
+          "description": "The bench supplies endless measures of moonwater, silver salt, ember moss and grave ash. Recipe: begin with moonwater; dissolve silver salt next; warm with ember moss last. Never add grave ash.",
+          "repeatText": {
+            "base": "The bench supplies endless measures of moonwater, silver salt, ember moss and grave ash. Recipe: begin with moonwater; dissolve silver salt next; warm with ember moss last. Never add grave ash.",
+            "variants": [
+              {
+                "when": {
+                  "type": "puzzleSolved",
+                  "id": "p13_alchemy"
+                },
+                "text": "A silver memory forms in the retort: Maul replaced the stabilizer before the accident. Ottoline's formula was sound."
               }
             ]
           }
@@ -608,6 +733,31 @@
               }
             ]
           }
+        },
+        {
+          "id": "q11_constellation",
+          "label": "Constellation Discs",
+          "semanticLabel": "Constellation Discs, puzzle apparatus",
+          "area": {
+            "x": 0.41,
+            "y": 0.83,
+            "w": 0.17,
+            "h": 0.13
+          },
+          "puzzleId": "p11_constellation",
+          "description": "The star chart fixes north = 0, east = 1, south = 2, west = 3. Owl watches dawn in the east; Hare watches dusk in the west; Stag faces south.",
+          "repeatText": {
+            "base": "The star chart fixes north = 0, east = 1, south = 2, west = 3. Owl watches dawn in the east; Hare watches dusk in the west; Stag faces south.",
+            "variants": [
+              {
+                "when": {
+                  "type": "puzzleSolved",
+                  "id": "p11_constellation"
+                },
+                "text": "Starlight draws Ottoline's route through the vault. She entered willingly to bring the lost voices home."
+              }
+            ]
+          }
         }
       ]
     },
@@ -709,6 +859,31 @@
             ]
           },
           "repeatText": "The reflection waits a heartbeat to copy you. The figure behind it does not copy anything."
+        },
+        {
+          "id": "q16_echo_frequencies",
+          "label": "The Echo Frequencies",
+          "semanticLabel": "The Echo Frequencies, puzzle apparatus",
+          "area": {
+            "x": 0.79,
+            "y": 0.83,
+            "w": 0.17,
+            "h": 0.13
+          },
+          "puzzleId": "p16_echo_frequencies",
+          "description": "The tuning plate marks 220 Hz as low, 330 Hz as middle, 440 Hz as high, and 550 Hz as the decoy. The remembered call is low, high, middle. Repeat those three pulses; never sound the decoy.",
+          "repeatText": {
+            "base": "The tuning plate marks 220 Hz as low, 330 Hz as middle, 440 Hz as high, and 550 Hz as the decoy. The remembered call is low, high, middle. Repeat those three pulses; never sound the decoy.",
+            "variants": [
+              {
+                "when": {
+                  "type": "puzzleSolved",
+                  "id": "p16_echo_frequencies"
+                },
+                "text": "The matching call releases Ottoline's last message: 'The Echo remembers kindness. Ask what it wants; never command it to become me.'"
+              }
+            ]
+          }
         }
       ]
     }

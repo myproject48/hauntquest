@@ -1,0 +1,16 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Dart checks after agent edits",
+      "trigger": "PostToolUse",
+      "description": "After the agent writes a file: the same read-only format check, targeted analysis and focused-test nudge as the save hook. Non-Dart writes exit in milliseconds.",
+      "matcher": "^(fs_write|str_replace|fs_append)$",
+      "action": {
+        "type": "command",
+        "command": "sh tool/hooks/run.sh post-edit",
+        "timeout": 90
+      }
+    }
+  ]
+}

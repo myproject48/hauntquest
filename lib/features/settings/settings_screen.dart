@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kReleaseMode;
 import 'package:flutter/material.dart';
 
 import '../../app/app_scope.dart';
@@ -13,6 +14,14 @@ import '../../core/widgets/pressable_scale.dart';
 import '../../core/widgets/spectral_button.dart';
 import '../ending/ending_screen.dart';
 
+/// Whether Settings shows the review tools (reveal everything, ending
+/// previews). They are a review aid, not gameplay: off in release builds
+/// unless the build passes `--dart-define=HQ_REVIEW_TOOLS=true`.
+const bool reviewToolsEnabled = bool.fromEnvironment(
+  'HQ_REVIEW_TOOLS',
+  defaultValue: !kReleaseMode,
+);
+
 /// Reading, motion and play settings that apply immediately and are saved on
 /// the device.
 class SettingsScreen extends StatelessWidget {
@@ -24,7 +33,11 @@ class SettingsScreen extends StatelessWidget {
     final theme = Theme.of(context);
 
     return ListenableBuilder(
-      listenable: Listenable.merge([services.settings, services.preview]),
+      listenable: Listenable.merge([
+        services.settings,
+        services.game,
+        services.audio,
+      ]),
       builder: (context, _) {
         final settings = services.settings.settings;
         final controller = services.settings;
@@ -135,25 +148,50 @@ class SettingsScreen extends StatelessWidget {
                 index: 3,
                 title: 'Sound',
                 children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Icon(
-                        Icons.volume_off_rounded,
-                        color: AppColors.fog,
-                      ),
-                      const SizedBox(width: AppSpacing.md),
-                      Expanded(
-                        child: Text(
-                          'Music and sound effects are not part of this build yet. Volume controls will appear here when they are.',
-                          style: theme.textTheme.bodyMedium,
-                        ),
-                      ),
-                    ],
+                  _SwitchRow(
+                    title: 'Mute all sound',
+                    subtitle: 'Silences ambience and interaction sounds without changing your volume settings.',
+                    value: settings.muted,
+                    onChanged: (v) => update(settings.copyWith(muted: v)),
                   ),
+                  _VolumeControl(
+                    label: 'Master volume',
+                    value: settings.masterVolume,
+                    onChanged: (v) => services.settings.update(
+                      settings.copyWith(masterVolume: v),
+                      persist: false,
+                    ),
+                    onEnd: (_) => services.settings.saveCurrent(),
+                  ),
+                  _VolumeControl(
+                    label: 'Ambient volume',
+                    value: settings.ambientVolume,
+                    onChanged: (v) => services.settings.update(
+                      settings.copyWith(ambientVolume: v),
+                      persist: false,
+                    ),
+                    onEnd: (_) => services.settings.saveCurrent(),
+                  ),
+                  _VolumeControl(
+                    label: 'Effects volume',
+                    value: settings.effectsVolume,
+                    onChanged: (v) => services.settings.update(
+                      settings.copyWith(effectsVolume: v),
+                      persist: false,
+                    ),
+                    onEnd: (_) => services.settings.saveCurrent(),
+                  ),
+                  Text(
+                    'Original synthesized soundscapes. Audio pauses when the app leaves the foreground.',
+                    style: theme.textTheme.bodySmall,
+                  ),
+                  if (services.audio.lastError != null)
+                    const Text(
+                      'Audio is unavailable right now. The full game remains playable without sound.',
+                    ),
                 ],
               ),
-              _Section(
+              if (reviewToolsEnabled) _Section(
                 index: 4,
                 title: 'Review tools',
                 children: [
@@ -164,9 +202,9 @@ class SettingsScreen extends StatelessWidget {
                   const SizedBox(height: AppSpacing.sm),
                   _SwitchRow(
                     title: 'Reveal everything',
-                    subtitle: 'Opens every room, shows every item, person and clue, and lets you try every puzzle and conversation.',
-                    value: services.preview.revealAll,
-                    onChanged: (v) => services.preview.revealAll = v,
+                    subtitle: 'Opens every room and hands you every item so each screen can be seen. Puzzles stay unsolved. Turning it off restores your real journey exactly.',
+                    value: services.game.reviewMode,
+                    onChanged: (v) => services.game.reviewMode = v,
                   ),
                   const SizedBox(height: AppSpacing.sm),
                   Text(
@@ -345,4 +383,35 @@ class _Sample extends StatelessWidget {
       ),
     );
   }
+}
+
+class _VolumeControl extends StatelessWidget {
+  const _VolumeControl({
+    required this.label,
+    required this.value,
+    required this.onChanged,
+    required this.onEnd,
+  });
+  final String label;
+  final double value;
+  final ValueChanged<double> onChanged, onEnd;
+  @override
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      Text(
+        '$label • ${(value * 100).round()}%',
+        style: Theme.of(context).textTheme.bodyMedium,
+      ),
+      Slider(
+        key: ValueKey(label),
+        value: value,
+        divisions: 20,
+        label: '${(value * 100).round()}%',
+        semanticFormatterCallback: (v) => '$label ${(v * 100).round()} percent',
+        onChanged: onChanged,
+        onChangeEnd: onEnd,
+      ),
+    ],
+  );
 }

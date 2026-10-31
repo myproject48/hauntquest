@@ -80,25 +80,37 @@ Verdict evaluatePuzzle(PuzzleDef def, PuzzleInput input) {
       return Verdict.incorrect;
 
     case (PuzzleKind.dial, DialInput(:final value)):
+      if (value < (c['min'] as int) || value > (c['max'] as int)) {
+        return Verdict.incorrect;
+      }
       final target = c['target'] as int;
       if (value == target) return Verdict.correct;
       return (value - target).abs() <= 2 ? Verdict.partial : Verdict.incorrect;
 
     case (PuzzleKind.combine, PlacedItemsInput(:final itemIds)):
       final slots = (c['slots'] as List).cast<String>();
-      if (slots.every(itemIds.contains)) return Verdict.correct;
+      if (itemIds.length == slots.length && slots.every(itemIds.contains)) {
+        return Verdict.correct;
+      }
       return slots.any(itemIds.contains) ? Verdict.partial : Verdict.incorrect;
 
     case (PuzzleKind.useItem, UseItemInput(:final itemId)):
       return itemId == c['itemId'] ? Verdict.correct : Verdict.incorrect;
 
     case (PuzzleKind.clock, ClockInput(:final hour, :final minute)):
-      final sameHour = hour % 12 == (c['hour'] as int) % 12;
+      if (hour < 1 || hour > 12 || minute < 0 || minute > 59) {
+        return Verdict.incorrect;
+      }
+      final sameHour = hour == c['hour'];
       if (sameHour && minute == c['minute']) return Verdict.correct;
       return sameHour ? Verdict.partial : Verdict.incorrect;
 
     case (PuzzleKind.gears, GearsInput(:final positions)):
       final target = (c['target'] as List).cast<int>();
+      if (positions.length != target.length ||
+          positions.any((p) => p < 0 || p >= (c['positions'] as int))) {
+        return Verdict.incorrect;
+      }
       if (_listEquals(positions, target)) return Verdict.correct;
       var matches = 0;
       for (var i = 0; i < target.length && i < positions.length; i++) {

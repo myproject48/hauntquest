@@ -9,17 +9,17 @@ import '../widgets/grain_overlay.dart';
 import 'paint_kit.dart';
 
 /// Full-bleed illustration for an ending, chosen by `sceneId` from
-/// `story.json`: `ending_quiet_dawn`, `ending_homecoming`,
-/// `ending_keepers_chair`.
+/// `story.json`: `ending_release_echo`, `ending_echo_guardian`,
+/// `ending_seal_echo`.
 class EndingScene extends StatefulWidget {
   const EndingScene({super.key, required this.sceneId});
 
   final String sceneId;
 
   static const Set<String> supported = {
-    'ending_quiet_dawn',
-    'ending_homecoming',
-    'ending_keepers_chair',
+    'ending_release_echo',
+    'ending_echo_guardian',
+    'ending_seal_echo',
   };
 
   @override
@@ -55,8 +55,8 @@ class _EndingSceneState extends State<EndingScene>
       throw ArgumentError('No ending art for "${widget.sceneId}".');
     }
     final fog = switch (widget.sceneId) {
-      'ending_quiet_dawn' => AppColors.goldLight,
-      'ending_homecoming' => AppColors.antiqueGold,
+      'ending_release_echo' => AppColors.goldLight,
+      'ending_echo_guardian' => AppColors.antiqueGold,
       _ => const Color(0xFFB48CFF),
     };
     return ExcludeSemantics(
@@ -88,12 +88,12 @@ class _EndingPainter extends CustomPainter {
     if (s.isEmpty) return;
     final t = anim.value;
     switch (id) {
-      case 'ending_quiet_dawn':
+      case 'ending_release_echo':
         _dawn(canvas, s, t);
-      case 'ending_homecoming':
-        _homecoming(canvas, s, t);
+      case 'ending_echo_guardian':
+        _guardian(canvas, s, t);
       default:
-        _chair(canvas, s, t);
+        _seal(canvas, s, t);
     }
   }
 
@@ -183,8 +183,8 @@ class _EndingPainter extends CustomPainter {
     );
   }
 
-  // The Homecoming: a warm doorway, two figures, a lantern.
-  void _homecoming(Canvas c, Size s, double t) {
+  // Guardianship: an open arch, a watcher and a freely moving light.
+  void _guardian(Canvas c, Size s, double t) {
     Kit.vGradient(
       c,
       Offset.zero & s,
@@ -236,7 +236,7 @@ class _EndingPainter extends CustomPainter {
       Rect.fromLTWH(0, base, s.width, s.height - base),
       Kit.fill(const Color(0xFF14102B)),
     );
-    // Two silhouettes: Ottoline stepping out, Tallow with a lantern.
+    // The guardian and Tallow keep a welcoming doorway.
     void figure(double x, double h, {bool porter = false}) {
       final dark = Kit.fill(const Color(0xFF0A0818));
       c.drawPath(
@@ -293,8 +293,8 @@ class _EndingPainter extends CustomPainter {
     }
   }
 
-  // The Keeper's Chair: a stone chair in the vault, voices spiraling inward.
-  void _chair(Canvas c, Size s, double t) {
+  // Containment: the voices settle around a sealed, stable core.
+  void _seal(Canvas c, Size s, double t) {
     Kit.vGradient(
       c,
       Offset.zero & s,
@@ -304,7 +304,7 @@ class _EndingPainter extends CustomPainter {
     final cx = s.width * 0.5;
     final cy = s.height * 0.46;
     final u = math.min(s.width, s.height * 0.75);
-    // Voices: many pale spirals converging on the chair.
+    // Voices settle within the containment field.
     for (var arm = 0; arm < 7; arm++) {
       final p = Path();
       for (var i = 0; i <= 60; i++) {
@@ -337,56 +337,31 @@ class _EndingPainter extends CustomPainter {
       ),
       Kit.stroke(AppColors.violetMist, 2),
     );
-    // The chair: high stone back, seat, arms.
-    final stone = Kit.fill(const Color(0xFF2A2250));
-    final edge = Kit.stroke(AppColors.stoneLight, 2);
-    final back = Path()
-      ..moveTo(cx - 0.12 * u, s.height * 0.78)
-      ..lineTo(cx - 0.12 * u, cy - 0.12 * u)
-      ..lineTo(cx - 0.05 * u, cy - 0.28 * u)
-      ..lineTo(cx, cy - 0.34 * u)
-      ..lineTo(cx + 0.05 * u, cy - 0.28 * u)
-      ..lineTo(cx + 0.12 * u, cy - 0.12 * u)
-      ..lineTo(cx + 0.12 * u, s.height * 0.78)
-      ..close();
-    c.drawPath(back, stone);
-    c.drawPath(back, edge);
-    c.drawRect(
-      Rect.fromLTRB(cx - 0.2 * u, cy + 0.1 * u, cx + 0.2 * u, cy + 0.17 * u),
-      stone,
+    // A sealed glass sphere, held by three intersecting containment rings.
+    final center = Offset(cx, cy);
+    final radius = u * .24;
+    c.drawCircle(
+      center,
+      radius,
+      Kit.fill(AppColors.moonCyan.withValues(alpha: .15)),
     );
-    c.drawRect(
-      Rect.fromLTRB(cx - 0.2 * u, cy + 0.1 * u, cx + 0.2 * u, cy + 0.17 * u),
-      edge,
-    );
-    for (final dx in [-0.2, 0.15]) {
-      c.drawRect(
-        Rect.fromLTWH(
-          cx + dx * u,
-          cy + 0.17 * u,
-          0.05 * u,
-          s.height * 0.78 - (cy + 0.17 * u),
+    Kit.glow(c, center, radius, AppColors.moonCyan, .6);
+    c.drawCircle(center, radius, Kit.stroke(AppColors.stoneLight, 3));
+    for (var i = 0; i < 3; i++) {
+      c.save();
+      c.translate(cx, cy);
+      c.rotate(i * math.pi / 3);
+      c.drawOval(
+        Rect.fromCenter(
+          center: Offset.zero,
+          width: radius * 2.4,
+          height: radius * .65,
         ),
-        stone,
+        Kit.stroke(AppColors.goldLight, 2.4),
       );
+      c.restore();
     }
-    // A thin gold crown ring hovering above, pulsing.
-    final ring = 0.6 + 0.4 * math.sin(t * 2 * math.pi * 2);
-    c.drawOval(
-      Rect.fromCenter(
-        center: Offset(cx, cy - 0.46 * u),
-        width: 0.3 * u,
-        height: 0.07 * u,
-      ),
-      Kit.stroke(AppColors.goldLight.withValues(alpha: 0.5 + 0.4 * ring), 2.4),
-    );
-    Kit.glow(
-      c,
-      Offset(cx, cy - 0.46 * u),
-      0.16 * u,
-      AppColors.antiqueGold,
-      0.4 * ring,
-    );
+    c.drawCircle(center, u * .025, Kit.fill(AppColors.paper));
   }
 
   @override

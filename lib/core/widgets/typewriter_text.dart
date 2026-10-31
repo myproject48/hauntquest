@@ -12,7 +12,7 @@ class TypewriterText extends StatefulWidget {
     this.textAlign,
     this.onCompleted,
     this.charactersPerSecond = 45,
-  });
+  }) : assert(charactersPerSecond > 0);
 
   final String text;
   final TextStyle? style;
@@ -38,7 +38,9 @@ class TypewriterTextState extends State<TypewriterText>
   }
 
   AnimationController _build() {
-    final ms = (widget.text.length / widget.charactersPerSecond * 1000).round();
+    final ms =
+        (widget.text.characters.length / widget.charactersPerSecond * 1000)
+            .round();
     final c = AnimationController(
       vsync: this,
       duration: Duration(milliseconds: ms < 1 ? 1 : ms),
@@ -100,10 +102,11 @@ class TypewriterTextState extends State<TypewriterText>
       child: AnimatedBuilder(
         animation: _controller,
         builder: (context, _) {
-          final count = (widget.text.length * _controller.value).round();
+          final graphemes = widget.text.characters;
+          final count = (graphemes.length * _controller.value).round();
           // Keep layout stable: hidden characters are transparent, not absent.
-          final visible = widget.text.substring(0, count);
-          final hidden = widget.text.substring(count);
+          final visible = graphemes.take(count).toString();
+          final hidden = graphemes.skip(count).toString();
           final base = widget.style ?? DefaultTextStyle.of(context).style;
           return Text.rich(
             TextSpan(

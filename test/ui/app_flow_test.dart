@@ -6,6 +6,7 @@ import 'package:hauntquest/app/settings_controller.dart';
 import 'package:hauntquest/features/dialogue/dialogue_screen.dart';
 import 'package:hauntquest/features/ending/ending_screen.dart';
 import 'package:hauntquest/features/puzzle/puzzle_screen.dart';
+import 'package:hauntquest/domain/puzzles/puzzle_evaluator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'ui_harness.dart';
@@ -57,8 +58,11 @@ void main() {
       await tester.tap(find.text('CONTINUE'));
       await settle(tester);
       expect(find.text('No saved journeys yet'), findsOneWidget);
+      expect(find.text('JOURNEY IN PROGRESS'), findsNothing);
       expect(find.text('Autosave'), findsOneWidget);
-      expect(find.text('Slot 3'), findsOneWidget);
+      // One autosaved journey; no inert manual-slot placeholders.
+      expect(find.textContaining('one journey at a time'), findsOneWidget);
+      expect(find.textContaining('Slot'), findsNothing);
       await tester.tap(find.byTooltip('Back'));
       await settle(tester);
 
@@ -172,12 +176,8 @@ void main() {
         await tester.tap(find.text('CHECK'));
         await settle(tester, 400);
         expect(find.text('That is right'), findsOneWidget);
-        expect(
-          find.textContaining(
-            'rewards such as new items and open doors are not applied yet',
-          ),
-          findsOneWidget,
-        );
+        // The reward is real: the hidden door is now open.
+        expect(find.text('A way opens: Hidden door'), findsOneWidget);
       },
     );
 
@@ -250,7 +250,8 @@ void main() {
       await tester.tap(find.byTooltip('Manor map'));
       await settle(tester, 500);
       expect(find.text('Manor map'), findsOneWidget);
-      expect(find.text('You are here'), findsOneWidget);
+      expect(find.textContaining('You are here'), findsOneWidget);
+      expect(find.textContaining('0/4 puzzles'), findsOneWidget);
       expect(find.text('Unknown room'), findsNWidgets(4));
       await tester.tap(find.text('CLOSE'));
       await settle(tester, 500);
@@ -260,17 +261,17 @@ void main() {
       await settle(tester, 500);
       expect(find.text('Paused'), findsOneWidget);
       await tester.tap(find.text('BACK TO TITLE'));
-      await settle(tester, 500);
-      expect(find.text('Leave the manor?'), findsOneWidget);
-      await tester.tap(find.text('Leave'));
       await settle(tester);
+      // The journey is kept, so leaving needs no warning.
       expect(find.text('BEGIN QUEST'), findsOneWidget);
     });
 
     testWidgets('review mode opens every room', (tester) async {
-      final services = await enterRoom(tester, reveal: true);
+      // Beginning a quest starts fresh, so review mode is turned on after.
+      final services = await enterRoom(tester);
+      services.game.reviewMode = true;
       for (final room in services.content.rooms) {
-        services.preview.moveTo(room.id);
+        services.game.moveTo(room.id);
         await settle(tester, 700);
         expect(find.text(room.name), findsWidgets, reason: room.id);
       }
@@ -282,29 +283,34 @@ void main() {
       tester,
     ) async {
       setScreen(tester, 390, 844);
-      final services = await makeServices();
+      // Review mode puts the player in the vault with the engine humming.
+      final services = await makeServices(reveal: true);
       await bootApp(tester, services);
+      services.game.moveTo('echo_vault');
+      services.game.submitPuzzle(
+        'p9_resonance_engine',
+        const SequenceInput(['tide', 'ember', 'gale']),
+      );
       await openScreen(tester, const DialogueScreen(choiceId: 'c_echo_fate'));
 
       expect(find.text('Echo'), findsNothing);
       expect(find.text('The Echo'), findsOneWidget);
-      expect(find.text('LET THE ECHO REST.'), findsOneWidget);
-      expect(find.text('CALL OTTOLINE HOME.'), findsOneWidget);
+      expect(find.text('RELEASE THE ECHO.'), findsOneWidget);
+      expect(find.text("BECOME THE ECHO'S GUARDIAN."), findsOneWidget);
       expect(
-        find.textContaining('The Echo will not trust a stranger'),
+        find.textContaining('The Echo will not trust an owner'),
         findsOneWidget,
       );
-      expect(
-        find.textContaining('You know no way to bind the Echo'),
-        findsOneWidget,
-      );
+      expect(find.textContaining("Learn Maul's binding words"), findsOneWidget);
     });
 
-    testWidgets('choosing an answer shows the reply and an honest note', (
+    testWidgets('choosing an answer shows the reply and records it', (
       tester,
     ) async {
       setScreen(tester, 390, 844);
-      await bootApp(tester, await makeServices());
+      final services = await makeServices(reveal: true);
+      await bootApp(tester, services);
+      services.game.moveTo('alchemist_workshop');
       await openScreen(
         tester,
         const DialogueScreen(choiceId: 'c_echo_whisper'),
@@ -316,10 +322,16 @@ void main() {
         find.textContaining('Ottoline said that word too'),
         findsOneWidget,
       );
+      // The answer is recorded and changes the story.
       expect(
-        find.textContaining('not recorded in the story yet'),
-        findsOneWidget,
+        services.game.state.resolvedChoices['c_echo_whisper'],
+        'ew_gentle',
       );
+      expect(services.game.flag('mercy'), 1);
+      await tester.tap(find.text('CONTINUE CONVERSATION'));
+      await settle(tester);
+      await tester.tap(find.text('PROMISE TO LISTEN WITHOUT OWNING IT.'));
+      await settle(tester);
       await tester.tap(find.text('DONE'));
       await settle(tester);
       expect(find.byType(DialogueScreen), findsNothing);
@@ -365,8 +377,8 @@ void main() {
       await settle(tester, 300);
       await tester.tap(find.text('Reveal everything'));
       await settle(tester, 300);
-      expect(services.preview.revealAll, isTrue);
-      expect(services.preview.inventory, hasLength(10));
+      expect(services.game.reviewMode, isTrue);
+      expect(services.game.inventory, hasLength(10));
     });
 
     test('settings survive a restart through shared_preferences', () async {

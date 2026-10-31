@@ -1,5 +1,6 @@
 import 'condition.dart';
 import 'json_helpers.dart';
+import 'narrative_def.dart';
 
 /// A named story flag with an integer range. Booleans use range 0 to 1.
 class FlagDef {
@@ -59,6 +60,7 @@ class EndingDef {
     required this.epilogue,
     required this.sceneId,
     required this.musicCue,
+    this.revealStyle = 'release',
   });
 
   factory EndingDef.fromJson(JsonMap m, String ctx) => EndingDef(
@@ -67,6 +69,7 @@ class EndingDef {
     epilogue: stringList(m, 'epilogue', ctx, required: true),
     sceneId: reqString(m, 'sceneId', ctx),
     musicCue: reqString(m, 'musicCue', ctx),
+    revealStyle: optString(m, 'revealStyle', ctx) ?? 'release',
   );
 
   final String id;
@@ -74,6 +77,7 @@ class EndingDef {
   final List<String> epilogue;
   final String sceneId;
   final String musicCue;
+  final String revealStyle;
 }
 
 /// Ordered ending rule. The first rule whose [when] holds picks the ending.
@@ -103,6 +107,8 @@ class StoryDef {
     required this.flags,
     required this.endings,
     required this.endingRules,
+    this.journalEntries = const [],
+    this.evidenceLinks = const [],
   });
 
   factory StoryDef.fromJson(JsonMap m) {
@@ -127,6 +133,24 @@ class StoryDef {
         for (final (i, e) in objectList(m, 'endings', ctx).indexed)
           EndingDef.fromJson(e, 'story.endings[$i]'),
       ],
+      journalEntries: [
+        for (final (i, e) in objectList(
+          m,
+          'journalEntries',
+          ctx,
+          required: false,
+        ).indexed)
+          JournalEntryDef.fromJson(e, 'story.journalEntries[$i]'),
+      ],
+      evidenceLinks: [
+        for (final (i, e) in objectList(
+          m,
+          'evidenceLinks',
+          ctx,
+          required: false,
+        ).indexed)
+          EvidenceLinkDef.fromJson(e, 'story.evidenceLinks[$i]'),
+      ],
       endingRules: [
         for (final (i, r) in objectList(m, 'endingRules', ctx).indexed)
           EndingRule.fromJson(r, 'story.endingRules[$i]'),
@@ -147,4 +171,6 @@ class StoryDef {
   final List<FlagDef> flags;
   final List<EndingDef> endings;
   final List<EndingRule> endingRules;
+  final List<JournalEntryDef> journalEntries;
+  final List<EvidenceLinkDef> evidenceLinks;
 }

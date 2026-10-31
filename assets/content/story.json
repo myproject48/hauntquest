@@ -3,7 +3,9 @@
   "tagline": "Some voices never leave.",
   "premise": "A letter from a frightened apprentice calls you to Vask Manor, where the inventor Ottoline Vask vanished while chasing a phenomenon called the Echo.",
   "startRoomId": "moonlit_hall",
-  "startItems": ["wrens_letter"],
+  "startItems": [
+    "wrens_letter"
+  ],
   "finalChoiceId": "c_echo_fate",
   "introLines": [
     "The letter arrived on a night without wind. It asked for one thing: finish what Ottoline Vask began.",
@@ -48,56 +50,462 @@
     }
   ],
   "flags": [
-    { "id": "truthFragments", "min": 0, "max": 5, "initial": 0 },
-    { "id": "mercy", "min": 0, "max": 3, "initial": 0 },
-    { "id": "acceptedBargain", "min": 0, "max": 1, "initial": 0 },
-    { "id": "fate", "min": 0, "max": 3, "initial": 0 },
-    { "id": "cylinderPlayed", "min": 0, "max": 1, "initial": 0 },
-    { "id": "engineRestored", "min": 0, "max": 1, "initial": 0 },
-    { "id": "tallowHurt", "min": 0, "max": 1, "initial": 0 },
-    { "id": "echoAngered", "min": 0, "max": 1, "initial": 0 },
-    { "id": "maulPressed", "min": 0, "max": 1, "initial": 0 }
+    {
+      "id": "truthFragments",
+      "min": 0,
+      "max": 5,
+      "initial": 0
+    },
+    {
+      "id": "mercy",
+      "min": 0,
+      "max": 3,
+      "initial": 0
+    },
+    {
+      "id": "acceptedBargain",
+      "min": 0,
+      "max": 1,
+      "initial": 0
+    },
+    {
+      "id": "fate",
+      "min": 0,
+      "max": 3,
+      "initial": 0
+    },
+    {
+      "id": "cylinderPlayed",
+      "min": 0,
+      "max": 1,
+      "initial": 0
+    },
+    {
+      "id": "engineRestored",
+      "min": 0,
+      "max": 1,
+      "initial": 0
+    },
+    {
+      "id": "tallowHurt",
+      "min": 0,
+      "max": 1,
+      "initial": 0
+    },
+    {
+      "id": "echoAngered",
+      "min": 0,
+      "max": 1,
+      "initial": 0
+    },
+    {
+      "id": "maulPressed",
+      "min": 0,
+      "max": 1,
+      "initial": 0
+    },
+    {
+      "id": "p10_symbol_seal_revealed",
+      "min": 0,
+      "max": 1,
+      "initial": 0
+    },
+    {
+      "id": "p11_constellation_revealed",
+      "min": 0,
+      "max": 1,
+      "initial": 0
+    },
+    {
+      "id": "p12_rune_gaps_revealed",
+      "min": 0,
+      "max": 1,
+      "initial": 0
+    },
+    {
+      "id": "p13_alchemy_revealed",
+      "min": 0,
+      "max": 1,
+      "initial": 0
+    },
+    {
+      "id": "p14_mirror_revealed",
+      "min": 0,
+      "max": 1,
+      "initial": 0
+    },
+    {
+      "id": "p15_evidence_revealed",
+      "min": 0,
+      "max": 1,
+      "initial": 0
+    },
+    {
+      "id": "p16_echo_frequencies_revealed",
+      "min": 0,
+      "max": 1,
+      "initial": 0
+    },
+    {
+      "id": "caretakerTrusted",
+      "min": 0,
+      "max": 1,
+      "initial": 0
+    },
+    {
+      "id": "guardianshipOath",
+      "min": 0,
+      "max": 1,
+      "initial": 0
+    },
+    {
+      "id": "echoReassured",
+      "min": 0,
+      "max": 1,
+      "initial": 0
+    },
+    {
+      "id": "bindingLearned",
+      "min": 0,
+      "max": 1,
+      "initial": 0
+    }
   ],
   "endings": [
     {
-      "id": "quiet_dawn",
-      "title": "A Quiet Dawn",
-      "sceneId": "ending_quiet_dawn",
+      "id": "release_echo",
+      "title": "Release the Echo",
+      "sceneId": "ending_release_echo",
       "musicCue": "ending_rest",
       "epilogue": [
-        "You lower the last ring. One by one, the voices in the vault fall silent.",
-        "Ottoline's laugh is the final sound, warm and unhurried. Then, nothing.",
-        "At sunrise Tallow winds his own key and sweeps the hall. The manor is merely old now."
-      ]
+        "The final ring opens. Pale voices rise like moths through the vault roof, carrying their grief into the morning.",
+        "Ottoline's last memory thanks you. It is a farewell, not a return. You let it go.",
+        "By sunrise the manor is silent. Wren and Tallow walk out beside you, and the wind has no borrowed voice."
+      ],
+      "revealStyle": "release"
     },
     {
-      "id": "homecoming",
-      "title": "The Homecoming",
-      "sceneId": "ending_homecoming",
+      "id": "echo_guardian",
+      "title": "Become the Echo's Guardian",
+      "sceneId": "ending_echo_guardian",
       "musicCue": "ending_return",
       "epilogue": [
-        "You call her name into the engine, and the Echo answers with a heartbeat.",
-        "Ottoline steps out of the mirrored dark, ink on her fingers, a year of silence in her eyes.",
-        "The Echo shrinks to a whisper in the walls, content to be a friend.",
-        "Tallow offers her a lantern. 'Welcome home, madam. The library is dark.'"
-      ]
+        "You set the binding key down and offer an open hand. The Echo answers in its own voice, no longer borrowing Ottoline's.",
+        "You stay by choice, and it stays by choice. Together you tend the memories without making them a prison.",
+        "Wren brings letters from the world outside. Tallow lights a second lantern at the gate. The manor becomes a home for those who need to be heard."
+      ],
+      "revealStyle": "guardian"
     },
     {
-      "id": "keepers_chair",
-      "title": "The Keeper's Chair",
-      "sceneId": "ending_keepers_chair",
+      "id": "seal_echo",
+      "title": "Seal the Echo",
+      "sceneId": "ending_seal_echo",
       "musicCue": "ending_bound",
       "epilogue": [
-        "You bind the Echo as Maul instructed. Every voice it ever swallowed bows to your own.",
-        "The manor's doors open for you and close for everyone else.",
-        "In the vault, a chair of stone waits. Somewhere, Ottoline whispers your words back to you, bent.",
-        "You are not alone anymore. You never will be again."
-      ]
+        "One by one, the containment rings lock around a steady silver light. The Echo is sheltered, and its reach no longer spills into the world.",
+        "You leave no throne in the vault. The seal belongs to no investor and answers to no master.",
+        "Wren records the bindings so that one day they may be opened safely. Behind the glass, a voice sings a song only it remembers."
+      ],
+      "revealStyle": "seal"
     }
   ],
   "endingRules": [
-    { "when": { "type": "flagEquals", "id": "fate", "value": 3 }, "endingId": "keepers_chair" },
-    { "when": { "type": "flagEquals", "id": "fate", "value": 2 }, "endingId": "homecoming" },
-    { "when": { "type": "always" }, "endingId": "quiet_dawn" }
+    {
+      "when": {
+        "type": "flagEquals",
+        "id": "fate",
+        "value": 3
+      },
+      "endingId": "seal_echo"
+    },
+    {
+      "when": {
+        "type": "flagEquals",
+        "id": "fate",
+        "value": 2
+      },
+      "endingId": "echo_guardian"
+    },
+    {
+      "when": {
+        "type": "always"
+      },
+      "endingId": "release_echo"
+    }
+  ],
+  "journalEntries": [
+    {
+      "id": "j_letter",
+      "title": "Wren's request",
+      "text": "Wren asked me to find what became of Ottoline. The letter fixes her disappearance at twenty to midnight.",
+      "unlockWhen": {
+        "type": "always"
+      }
+    },
+    {
+      "id": "j_journal",
+      "title": "Ottoline's research",
+      "text": "Ottoline hid her notes in ciphers and treated the Echo as a guest. Her journal links memory, water, fire and wind.",
+      "unlockWhen": {
+        "type": "examined",
+        "id": "l_desk"
+      }
+    },
+    {
+      "id": "j_ledger",
+      "title": "The investor signed in",
+      "text": "E. Maul signed the visitor ledger before the accident. His presence was no coincidence.",
+      "unlockWhen": {
+        "type": "examined",
+        "id": "l_ledger"
+      }
+    },
+    {
+      "id": "j_recording",
+      "title": "A voice preserved in wax",
+      "text": "The recording proves Ottoline knew the engine might fail. Water must wake first; the tuner remembers 73.",
+      "unlockWhen": {
+        "type": "flagEquals",
+        "id": "cylinderPlayed",
+        "value": 1
+      }
+    },
+    {
+      "id": "j_clock",
+      "title": "The hour of the accident",
+      "text": "The clock remembers 11:40, exactly as Wren wrote. Its case held the missing resonance core.",
+      "unlockWhen": {
+        "type": "puzzleSolved",
+        "id": "p7_stopped_hands"
+      }
+    },
+    {
+      "id": "j_log",
+      "title": "The keeper witnessed the aftermath",
+      "text": "The keeper heard wind close the circle. The engine was following a pattern when someone interfered.",
+      "unlockWhen": {
+        "type": "examined",
+        "id": "c_logbook"
+      }
+    },
+    {
+      "id": "j_tallow",
+      "title": "A caretaker remembers",
+      "text": {
+        "base": "Tallow offered his lantern even when I would not listen. Kindness is his choice, not a reward I can demand.",
+        "variants": [
+          {
+            "when": {
+              "type": "flagEquals",
+              "id": "caretakerTrusted",
+              "value": 1
+            },
+            "text": "Tallow trusted me with his locket. Ottoline asked him to protect people, not machinery."
+          }
+        ]
+      },
+      "unlockWhen": {
+        "type": "choiceResolved",
+        "id": "c_tallow_memory"
+      }
+    },
+    {
+      "id": "j_echo",
+      "title": "A voice of its own",
+      "text": {
+        "base": "I treated the Echo as an instrument. It remembered that demand.",
+        "variants": [
+          {
+            "when": {
+              "type": "flagEquals",
+              "id": "guardianshipOath",
+              "value": 1
+            },
+            "text": "I promised to listen without ownership. The Echo offered guardianship only if we both choose it."
+          }
+        ]
+      },
+      "unlockWhen": {
+        "type": "choiceResolved",
+        "id": "c_echo_identity"
+      }
+    },
+    {
+      "id": "j_maul",
+      "title": "The price of a seal",
+      "text": {
+        "base": "I rejected Maul's ownership. Ottoline's alchemy and star charts may still reveal safe containment.",
+        "variants": [
+          {
+            "when": {
+              "type": "flagEquals",
+              "id": "bindingLearned",
+              "value": 1
+            },
+            "text": "I learned the containment words. They can seal the Echo, but cannot restore Ottoline's life."
+          }
+        ]
+      },
+      "unlockWhen": {
+        "type": "choiceResolved",
+        "id": "c_maul_terms"
+      }
+    },
+    {
+      "id": "j_lilac",
+      "title": "The pressed lilac",
+      "text": "The seal opens on Ottoline's pressed lilac. Her note reads: 'Wren stayed to help me. He did not abandon us.'",
+      "unlockWhen": {
+        "type": "puzzleSolved",
+        "id": "p10_symbol_seal"
+      }
+    },
+    {
+      "id": "j_stars",
+      "title": "Ottoline's chosen path",
+      "text": "Starlight draws Ottoline's route through the vault. She entered willingly to bring the lost voices home.",
+      "unlockWhen": {
+        "type": "puzzleSolved",
+        "id": "p11_constellation"
+      }
+    },
+    {
+      "id": "j_runes",
+      "title": "A child learning to remember",
+      "text": "The tablet reveals a lesson: 'The Echo learns by repetition, as a child does. It is neither demon nor machine.'",
+      "unlockWhen": {
+        "type": "puzzleSolved",
+        "id": "p12_rune_gaps"
+      }
+    },
+    {
+      "id": "j_alchemy",
+      "title": "The stabilizer was sabotaged",
+      "text": "A silver memory forms in the retort: Maul replaced the stabilizer before the accident. Ottoline's formula was sound.",
+      "unlockWhen": {
+        "type": "puzzleSolved",
+        "id": "p13_alchemy"
+      }
+    },
+    {
+      "id": "j_mirror",
+      "title": "Maul's mark",
+      "text": "The mirror clears. Wren's reflection points at Maul's signet scratched into the damaged stabilizer.",
+      "unlockWhen": {
+        "type": "puzzleSolved",
+        "id": "p14_mirror"
+      }
+    },
+    {
+      "id": "j_timeline",
+      "title": "The accident reconstructed",
+      "text": "The completed timeline proves Maul caused the failure before Ottoline vanished. Wren's testimony is corroborated.",
+      "unlockWhen": {
+        "type": "puzzleSolved",
+        "id": "p15_evidence"
+      }
+    },
+    {
+      "id": "j_frequency",
+      "title": "Ottoline's last request",
+      "text": "The matching call releases Ottoline's last message: 'The Echo remembers kindness. Ask what it wants; never command it to become me.'",
+      "unlockWhen": {
+        "type": "puzzleSolved",
+        "id": "p16_echo_frequencies"
+      }
+    },
+    {
+      "id": "j_engine",
+      "title": "The final decision",
+      "text": {
+        "base": "The restored engine waits. The Echo must be released, contained, or guarded by mutual consent.",
+        "variants": [
+          {
+            "when": {
+              "type": "flagEquals",
+              "id": "fate",
+              "value": 1
+            },
+            "text": "I released the Echo and let the memories go. Freedom required a farewell."
+          },
+          {
+            "when": {
+              "type": "flagEquals",
+              "id": "fate",
+              "value": 3
+            },
+            "text": "I sealed the Echo without claiming it. The world is safe while Wren safeguards the bindings."
+          },
+          {
+            "when": {
+              "type": "flagEquals",
+              "id": "fate",
+              "value": 2
+            },
+            "text": "I became its guardian. We chose to keep watch together without ownership."
+          }
+        ]
+      },
+      "unlockWhen": {
+        "type": "puzzleSolved",
+        "id": "p9_resonance_engine"
+      }
+    }
+  ],
+  "evidenceLinks": [
+    {
+      "id": "link_0",
+      "from": "j_letter",
+      "to": "j_clock",
+      "label": "Two independent accounts fix the accident at 11:40."
+    },
+    {
+      "id": "link_1",
+      "from": "j_ledger",
+      "to": "j_mirror",
+      "label": "The visitor's name matches the signet on the damaged stabilizer."
+    },
+    {
+      "id": "link_2",
+      "from": "j_mirror",
+      "to": "j_alchemy",
+      "label": "The mark and the recovered formula point to deliberate sabotage."
+    },
+    {
+      "id": "link_3",
+      "from": "j_alchemy",
+      "to": "j_timeline",
+      "label": "The timeline confirms the cut preceded the alarm and disappearance."
+    },
+    {
+      "id": "link_4",
+      "from": "j_runes",
+      "to": "j_echo",
+      "label": "The Echo learns and chooses; it is more than an instrument."
+    },
+    {
+      "id": "link_5",
+      "from": "j_stars",
+      "to": "j_alchemy",
+      "label": "Star alignment and alchemical stability reconstruct safe containment."
+    },
+    {
+      "id": "link_6",
+      "from": "j_frequency",
+      "to": "j_echo",
+      "label": "Ottoline's last request corroborates the Echo's need for consent."
+    },
+    {
+      "id": "link_7",
+      "from": "j_recording",
+      "to": "j_log",
+      "label": "Water opens the sequence; wind closes it."
+    },
+    {
+      "id": "link_8",
+      "from": "j_tallow",
+      "to": "j_lilac",
+      "label": "Independent memories support Wren's loyalty."
+    }
   ]
 }

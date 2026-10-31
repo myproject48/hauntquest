@@ -1,0 +1,16 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Scan for secrets and artifacts before git commit",
+      "trigger": "PreToolUse",
+      "description": "When the agent runs git commit, scans the files being committed for obvious secrets, build artifacts, keystores and env files, and checks Git would not ignore .kiro/. Blocks the commit (exit 2) on findings. When the agent runs git push, asks the user to approve. Every other shell command passes in milliseconds.",
+      "matcher": "^execute_bash$",
+      "action": {
+        "type": "command",
+        "command": "sh tool/hooks/run.sh pre-bash",
+        "timeout": 60
+      }
+    }
+  ]
+}

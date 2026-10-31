@@ -12,6 +12,14 @@ import 'puzzle_art.dart';
 /// exactly what they can tap. A content test checks every hotspot has art.
 abstract final class HotspotArt {
   static const Set<String> supported = {
+    'q10_symbol_seal',
+    'q11_constellation',
+    'q12_rune_gaps',
+    'q13_alchemy',
+    'q14_mirror',
+    'q15_evidence',
+    'q16_echo_frequencies',
+
     'h_front_door',
     'h_portrait',
     'h_candelabra',
@@ -36,24 +44,44 @@ abstract final class HotspotArt {
     'v_mirrors',
   };
 
-  static void paint(Canvas c, String id, Rect r, double t) {
+  /// Paints the object, reflecting what the player has done to it.
+  static void paint(
+    Canvas c,
+    String id,
+    Rect r,
+    double t, [
+    HotspotLook look = HotspotLook.untouched,
+  ]) {
+    _base(c, id, r, t, look);
+    _after(c, id, r, t, look);
+  }
+
+  static void _base(Canvas c, String id, Rect r, double t, HotspotLook look) {
     switch (id) {
+      case 'q10_symbol_seal':
+      case 'q11_constellation':
+      case 'q12_rune_gaps':
+      case 'q13_alchemy':
+      case 'q14_mirror':
+      case 'q15_evidence':
+      case 'q16_echo_frequencies':
+        _inscribedApparatus(c, id, r, look.solved);
       case 'h_front_door':
         _door(c, r, t);
       case 'h_portrait':
-        _portrait(c, r);
+        _portrait(c, r, keyPresent: !look.taken);
       case 'h_candelabra':
         _candelabra(c, r, t);
       case 'h_tallow':
-        _tallow(c, r, t);
+        _tallow(c, r, t, awake: look.solved);
       case 'h_guest_table':
         _table(c, r);
       case 'l_shelf':
         _cipherShelf(c, r);
       case 'l_hearth':
-        _hearth(c, r, t);
+        _hearth(c, r, t, scrapPresent: !look.taken);
       case 'l_desk':
-        _desk(c, r, t);
+        _desk(c, r, t, journalPresent: !look.taken);
       case 'l_blotter':
         _blotter(c, r);
       case 'l_ledger':
@@ -69,7 +97,7 @@ abstract final class HotspotArt {
       case 'w_phonograph':
         _phonograph(c, r);
       case 'c_clockface':
-        _clockFace(c, r);
+        _clockFace(c, r, set: look.solved);
       case 'c_gears':
         _gearFrame(c, r);
       case 'c_logbook':
@@ -84,6 +112,277 @@ abstract final class HotspotArt {
         _mirrors(c, r, t);
       default:
         throw ArgumentError('No hotspot art for "$id".');
+    }
+  }
+
+  static void _inscribedApparatus(Canvas c, String id, Rect r, bool solved) {
+    final gold = solved ? AppColors.ghostGreen : AppColors.goldLight;
+    final frame = RRect.fromRectAndRadius(
+      r.deflate(r.shortestSide * .04),
+      Radius.circular(r.shortestSide * .1),
+    );
+    c.drawRRect(frame, Paint()..color = AppColors.midnight);
+    c.drawRRect(
+      frame,
+      Paint()
+        ..color = gold
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.5,
+    );
+    final center = r.center;
+    final radius = r.shortestSide * .3;
+    if (id == 'q14_mirror') {
+      c.drawOval(
+        Rect.fromCenter(
+          center: center,
+          width: radius * 1.4,
+          height: radius * 2,
+        ),
+        Paint()..color = AppColors.moonCyan.withValues(alpha: .5),
+      );
+      c.drawLine(
+        Offset(center.dx, center.dy - radius),
+        Offset(center.dx, center.dy + radius),
+        Paint()
+          ..color = gold
+          ..strokeWidth = 2,
+      );
+    } else if (id == 'q11_constellation') {
+      for (var i = 0; i < 3; i++) {
+        final point = Offset(r.left + r.width * (.23 + .27 * i), center.dy);
+        c.drawCircle(
+          point,
+          radius * .5,
+          Paint()
+            ..color = gold
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = 1.5,
+        );
+        c.drawCircle(
+          point.translate(radius * .2, -radius * .2),
+          2,
+          Paint()..color = gold,
+        );
+      }
+    } else if (id == 'q13_alchemy') {
+      final flask = Path()
+        ..moveTo(center.dx - radius * .2, center.dy - radius)
+        ..lineTo(center.dx - radius * .2, center.dy - radius * .3)
+        ..lineTo(center.dx - radius, center.dy + radius)
+        ..lineTo(center.dx + radius, center.dy + radius)
+        ..lineTo(center.dx + radius * .2, center.dy - radius * .3)
+        ..lineTo(center.dx + radius * .2, center.dy - radius)
+        ..close();
+      c.drawPath(
+        flask,
+        Paint()
+          ..color = gold
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 2,
+      );
+    } else if (id == 'q16_echo_frequencies') {
+      for (var i = 0; i < 5; i++) {
+        final x = r.left + r.width * (.2 + .15 * i);
+        final height = radius * (i.isEven ? 1 : .5);
+        c.drawLine(
+          Offset(x, center.dy - height),
+          Offset(x, center.dy + height),
+          Paint()
+            ..color = gold
+            ..strokeWidth = 2,
+        );
+      }
+    } else {
+      for (var i = 0; i < 4; i++) {
+        final x = r.left + r.width * (.2 + .2 * i);
+        c.drawLine(
+          Offset(x, center.dy - radius * .6),
+          Offset(x, center.dy + radius * .6),
+          Paint()
+            ..color = gold
+            ..strokeWidth = 2,
+        );
+        if (id != 'q12_rune_gaps') {
+          c.drawCircle(
+            Offset(x, center.dy),
+            radius * .25,
+            Paint()..color = gold,
+          );
+        }
+      }
+    }
+  }
+
+  /// Visible consequences of the player's actions, drawn over the base art.
+  static void _after(Canvas c, String id, Rect r, double t, HotspotLook look) {
+    final pulse = 0.75 + 0.25 * math.sin(t * 2 * math.pi * 3);
+    switch (id) {
+      case 'h_candelabra' when look.solved:
+        // Four pale blue flames.
+        for (var i = 0; i < 4; i++) {
+          final x = r.left + 4 + (r.width - 8) * (i / 3);
+          final top =
+              r.top +
+              r.height * (i == 1 || i == 2 ? 0.08 : 0.2) +
+              r.height * 0.18;
+          final f = 0.8 + 0.2 * math.sin((t * 7 + i * 0.3) * 2 * math.pi);
+          Kit.glow(c, Offset(x, top - 8), 18, AppColors.moonCyan, 0.6 * f);
+          c.drawPath(
+            Path()
+              ..moveTo(x, top)
+              ..quadraticBezierTo(x - 5, top - 8, x, top - 16 * f)
+              ..quadraticBezierTo(x + 5, top - 8, x, top),
+            Kit.fill(const Color(0xFFE9FFFF)),
+          );
+        }
+      case 'h_tallow' when look.solved:
+        // Awake: bright lamp eyes.
+        final w = r.width;
+        final headY = r.top + r.height * 0.17 + 2;
+        for (final dx in [-0.12, 0.12]) {
+          final e = Offset(r.center.dx + w * dx, headY);
+          Kit.glow(c, e, 14, AppColors.moonCyan, 0.7 * pulse);
+          c.drawCircle(e, 3.6, Kit.fill(const Color(0xFFE9FFFF)));
+        }
+      case 'l_shelf' when look.solved:
+        // The shelf has folded aside onto a dark passage.
+        final gap = Rect.fromLTWH(
+          r.left + r.width * 0.2,
+          r.top + r.height * 0.06,
+          r.width * 0.6,
+          r.height * 0.9,
+        );
+        Kit.rrect(c, gap, 6, Kit.fill(const Color(0xFF05040C)));
+        Kit.glow(
+          c,
+          gap.center,
+          gap.width * 0.6,
+          AppColors.ghostGreen,
+          0.25 * pulse,
+        );
+        Kit.rrect(c, gap, 6, Kit.stroke(AppColors.woodLight, 4));
+        for (var i = 0; i < 4; i++) {
+          final y = gap.bottom - (i + 1) * gap.height * 0.12;
+          c.drawLine(
+            Offset(gap.left + 8 + i * 4, y),
+            Offset(gap.right - 8 - i * 4, y),
+            Kit.stroke(AppColors.stoneLight, 2),
+          );
+        }
+      case 'l_blotter' when look.solved:
+        // The joined recipe, stained into the blotter.
+        final page = Rect.fromLTWH(
+          r.left + r.width * 0.12,
+          r.top + r.height * 0.18,
+          r.width * 0.76,
+          r.height * 0.64,
+        );
+        Kit.rrect(c, page, 2, Kit.fill(AppColors.paper));
+        c.drawLine(
+          page.topCenter,
+          page.bottomCenter,
+          Kit.stroke(AppColors.paperDark, 1.2),
+        );
+        Kit.glow(c, page.center, page.width * 0.4, AppColors.moonCyan, 0.25);
+      case 'w_cabinet' when look.solved:
+        // Lock dissolved, doors open on an empty shelf.
+        final inner = r.deflate(6);
+        c.drawRect(inner, Kit.fill(const Color(0xFF0A1416)));
+        c.drawLine(
+          Offset(inner.left, inner.center.dy),
+          Offset(inner.right, inner.center.dy),
+          Kit.stroke(AppColors.woodLight, 3),
+        );
+        for (final left in [true, false]) {
+          final x = left ? r.left : r.right;
+          final d = left ? -1.0 : 1.0;
+          c.drawPath(
+            Path()
+              ..moveTo(x, r.top + 4)
+              ..lineTo(x + d * r.width * 0.16, r.top + 12)
+              ..lineTo(x + d * r.width * 0.16, r.bottom - 12)
+              ..lineTo(x, r.bottom - 4)
+              ..close(),
+            Kit.fill(const Color(0xFF34494A)),
+          );
+        }
+        c.drawOval(
+          Rect.fromCenter(
+            center: Offset(r.center.dx, r.bottom - 4),
+            width: r.width * 0.4,
+            height: 8,
+          ),
+          Kit.fill(AppColors.verdigris.withValues(alpha: 0.6)),
+        );
+      case 'w_phonograph' when look.activated:
+        // The cylinder turning on the spindle, sound rising from the horn.
+        final box = Rect.fromLTWH(
+          r.left,
+          r.top + r.height * 0.6,
+          r.width * 0.85,
+          r.height * 0.4,
+        );
+        Kit.rrect(
+          c,
+          Rect.fromCenter(
+            center: Offset(box.center.dx, box.top - 6),
+            width: box.width * 0.4,
+            height: 10,
+          ),
+          3,
+          Kit.fill(const Color(0xFFC9A66B)),
+        );
+        for (var i = 0; i < 3; i++) {
+          final f = (t * 3 + i / 3) % 1.0;
+          c.drawArc(
+            Rect.fromCircle(
+              center: Offset(r.right - 4, r.top + 4),
+              radius: 8 + f * 22,
+            ),
+            math.pi * 0.6,
+            math.pi * 0.5,
+            false,
+            Kit.stroke(
+              AppColors.goldLight.withValues(alpha: 0.8 * (1 - f)),
+              1.6,
+            ),
+          );
+        }
+      case 'w_tuner' when look.solved:
+        Kit.glow(
+          c,
+          r.center,
+          r.shortestSide * 0.6,
+          AppColors.ghostGreen,
+          0.35 * pulse,
+        );
+      case 'c_gears' when look.solved:
+        // The spare cog seated in the empty socket.
+        final rad = math.min(r.height * 0.28, r.width * 0.15);
+        final ctr = Offset(r.left + r.width * 0.5, r.center.dy - rad * 0.2);
+        final g = Kit.gear(ctr, rad, 10, rotation: t * 2 * math.pi);
+        c.drawPath(
+          g,
+          Kit.brassPaint(Rect.fromCircle(center: ctr, radius: rad)),
+        );
+        c.drawPath(g, Kit.stroke(AppColors.goldLight, 1.2));
+        c.drawCircle(ctr, rad * 0.45, Kit.fill(const Color(0xFF14102B)));
+        c.drawCircle(ctr, rad * 0.1, Kit.fill(AppColors.brass));
+      case 'v_engine' when look.solved:
+        // The core seated and humming; the three pillars lit.
+        final cradle = Offset(r.center.dx, r.top + r.height * 0.34);
+        Kit.glow(c, cradle, r.width * 0.32, AppColors.moonCyan, 0.55 * pulse);
+        c.drawPath(
+          Path()
+            ..moveTo(cradle.dx, cradle.dy - r.height * 0.14)
+            ..lineTo(cradle.dx + r.width * 0.05, cradle.dy - r.height * 0.04)
+            ..lineTo(cradle.dx, cradle.dy + r.height * 0.02)
+            ..lineTo(cradle.dx - r.width * 0.05, cradle.dy - r.height * 0.04)
+            ..close(),
+          Kit.fill(AppColors.violetMist),
+        );
+      default:
+        break;
     }
   }
 
@@ -148,7 +447,7 @@ abstract final class HotspotArt {
     );
   }
 
-  static void _portrait(Canvas c, Rect r) {
+  static void _portrait(Canvas c, Rect r, {required bool keyPresent}) {
     final frame = r;
     Kit.rrect(
       c,
@@ -236,8 +535,10 @@ abstract final class HotspotArt {
       AppColors.wood,
       letterSpacing: 0.4,
     );
-    // The brass key on a nail at the frame's corner.
+    // The brass key on a nail at the frame's corner, until it is taken.
     final k = Offset(r.right - 6, r.top + r.height * 0.1);
+    c.drawCircle(k.translate(0, -7), 1.6, Kit.fill(AppColors.brassDark));
+    if (!keyPresent) return;
     c.drawCircle(k, 5, Kit.stroke(AppColors.goldLight, 2));
     c.drawLine(
       k.translate(0, 5),
@@ -317,7 +618,7 @@ abstract final class HotspotArt {
     }
   }
 
-  static void _tallow(Canvas c, Rect r, double t) {
+  static void _tallow(Canvas c, Rect r, double t, {required bool awake}) {
     final cx = r.center.dx;
     final w = r.width;
     // Legs.
@@ -381,12 +682,14 @@ abstract final class HotspotArt {
       )
       ..close();
     c.drawPath(cap, Kit.fill(const Color(0xFF232A55)));
-    // Dormant eyes, faintly breathing.
-    final b = 0.25 + 0.2 * math.sin(t * 2 * math.pi);
-    for (final dx in [-0.12, 0.12]) {
-      final e = Offset(cx + w * dx, head.center.dy + 2);
-      c.drawCircle(e, 3.4, Kit.fill(AppColors.midnight));
-      Kit.glow(c, e, 9, AppColors.moonCyan, b);
+    // Dormant eyes, faintly breathing (awake eyes are drawn on top later).
+    if (!awake) {
+      final b = 0.25 + 0.2 * math.sin(t * 2 * math.pi);
+      for (final dx in [-0.12, 0.12]) {
+        final e = Offset(cx + w * dx, head.center.dy + 2);
+        c.drawCircle(e, 3.4, Kit.fill(AppColors.midnight));
+        Kit.glow(c, e, 9, AppColors.moonCyan, b);
+      }
     }
     // Winding key slot on the shoulder.
     c.drawRect(
@@ -531,7 +834,12 @@ abstract final class HotspotArt {
     }
   }
 
-  static void _hearth(Canvas c, Rect r, double t) {
+  static void _hearth(
+    Canvas c,
+    Rect r,
+    double t, {
+    required bool scrapPresent,
+  }) {
     Kit.rrect(c, r, 4, Kit.fill(AppColors.stoneLight));
     for (var i = 0; i < 4; i++) {
       c.drawLine(
@@ -576,14 +884,16 @@ abstract final class HotspotArt {
       ),
       Kit.fill(const Color(0xFF3A3A4A)),
     );
-    c.drawPath(
-      Path()
-        ..moveTo(open.center.dx - 8, open.bottom - open.height * 0.2)
-        ..lineTo(open.center.dx + 4, open.bottom - open.height * 0.28)
-        ..lineTo(open.center.dx + 12, open.bottom - open.height * 0.18)
-        ..close(),
-      Kit.fill(AppColors.paperDark),
-    );
+    if (scrapPresent) {
+      c.drawPath(
+        Path()
+          ..moveTo(open.center.dx - 8, open.bottom - open.height * 0.2)
+          ..lineTo(open.center.dx + 4, open.bottom - open.height * 0.28)
+          ..lineTo(open.center.dx + 12, open.bottom - open.height * 0.18)
+          ..close(),
+        Kit.fill(AppColors.paperDark),
+      );
+    }
     // A last thread of cold smoke.
     final f = (t * 2) % 1.0;
     Kit.glow(
@@ -598,7 +908,12 @@ abstract final class HotspotArt {
     );
   }
 
-  static void _desk(Canvas c, Rect r, double t) {
+  static void _desk(
+    Canvas c,
+    Rect r,
+    double t, {
+    required bool journalPresent,
+  }) {
     final top = Rect.fromLTWH(
       r.left,
       r.top + r.height * 0.4,
@@ -648,28 +963,42 @@ abstract final class HotspotArt {
         ..close(),
       Kit.fill(AppColors.verdigris),
     );
-    // Open journal with an underlined last entry.
+    // Open journal with an underlined last entry; once taken, only a clean
+    // ring in the dust remains.
     final book = Rect.fromCenter(
       center: Offset(r.center.dx + r.width * 0.12, top.top - r.height * 0.07),
       width: r.width * 0.42,
       height: r.height * 0.14,
     );
-    Kit.rrect(c, book, 2, Kit.fill(AppColors.paper));
-    c.drawLine(
-      book.topCenter,
-      book.bottomCenter,
-      Kit.stroke(AppColors.paperDark, 1.4),
-    );
-    c.drawLine(
-      Offset(book.left + 5, book.bottom - 6),
-      Offset(book.center.dx - 5, book.bottom - 6),
-      Kit.stroke(AppColors.danger, 1.6),
-    );
-    c.drawLine(
-      Offset(book.left + 5, book.bottom - 4),
-      Offset(book.center.dx - 5, book.bottom - 4),
-      Kit.stroke(AppColors.danger, 1.6),
-    );
+    if (journalPresent) {
+      Kit.rrect(c, book, 2, Kit.fill(AppColors.paper));
+      c.drawLine(
+        book.topCenter,
+        book.bottomCenter,
+        Kit.stroke(AppColors.paperDark, 1.4),
+      );
+      c.drawLine(
+        Offset(book.left + 5, book.bottom - 6),
+        Offset(book.center.dx - 5, book.bottom - 6),
+        Kit.stroke(AppColors.danger, 1.6),
+      );
+      c.drawLine(
+        Offset(book.left + 5, book.bottom - 4),
+        Offset(book.center.dx - 5, book.bottom - 4),
+        Kit.stroke(AppColors.danger, 1.6),
+      );
+    } else {
+      Kit.rrect(
+        c,
+        Rect.fromCenter(
+          center: book.center.translate(0, book.height * 0.3),
+          width: book.width,
+          height: 4,
+        ),
+        2,
+        Kit.fill(AppColors.woodLight),
+      );
+    }
     // Inkwell.
     c.drawCircle(
       Offset(r.right - r.width * 0.1, top.top - 5),
@@ -950,7 +1279,7 @@ abstract final class HotspotArt {
 
   // -------------------------------------------------------- clocktower
 
-  static void _clockFace(Canvas c, Rect r) {
+  static void _clockFace(Canvas c, Rect r, {required bool set}) {
     final center = r.center;
     final rad = r.shortestSide / 2;
     Kit.glow(c, center, rad * 1.3, AppColors.antiqueGold, 0.3);
@@ -965,15 +1294,18 @@ abstract final class HotspotArt {
         Kit.stroke(AppColors.goldLight, i % 3 == 0 ? 3.4 : 1.8),
       );
     }
-    // Hands drooping at the wrong hour.
+    // Hands drooping at the wrong hour, or set to twenty to midnight.
+    final hourAngle = set ? (11 + 40 / 60) * math.pi / 6 - math.pi / 2 : 2.07;
+    final minuteAngle = set ? 40 * math.pi / 30 - math.pi / 2 : 1.29;
     c.drawLine(
       center,
-      center + Offset(-rad * 0.22, rad * 0.4),
+      center + Offset(math.cos(hourAngle), math.sin(hourAngle)) * rad * 0.45,
       Kit.stroke(AppColors.goldLight, 6),
     );
     c.drawLine(
       center,
-      center + Offset(rad * 0.18, rad * 0.62),
+      center +
+          Offset(math.cos(minuteAngle), math.sin(minuteAngle)) * rad * 0.65,
       Kit.stroke(AppColors.moonCyan, 4),
     );
     c.drawCircle(center, rad * 0.06, Kit.fill(AppColors.brass));
@@ -1291,4 +1623,35 @@ abstract final class HotspotArt {
       Kit.stroke(Colors.white.withValues(alpha: 0.18), 3),
     );
   }
+}
+
+/// What the player has done to an object, so its art can show it.
+@immutable
+class HotspotLook {
+  const HotspotLook({
+    this.taken = false,
+    this.solved = false,
+    this.activated = false,
+  });
+
+  static const untouched = HotspotLook();
+
+  /// Everything it held has been picked up.
+  final bool taken;
+
+  /// Its puzzle is solved.
+  final bool solved;
+
+  /// An item has been used on it.
+  final bool activated;
+
+  @override
+  bool operator ==(Object other) =>
+      other is HotspotLook &&
+      other.taken == taken &&
+      other.solved == solved &&
+      other.activated == activated;
+
+  @override
+  int get hashCode => Object.hash(taken, solved, activated);
 }

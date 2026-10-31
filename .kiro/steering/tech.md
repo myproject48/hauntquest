@@ -11,7 +11,7 @@
 
 - Primary: Android (phones first, tablets must work).
 - Secondary: Flutter Web (Chrome) where practical. Code must avoid `dart:io` in shared code paths; isolate platform-specific code behind interfaces.
-- No Android device or emulator was connected during setup; Android builds are not yet verified. Do not claim Android verification until it is actually run.
+- Android: debug build and an end-to-end integration test pass on an emulator (API 37). Not yet run on a physical phone.
 - iOS, desktop folders exist from the template but are not targets.
 
 ## Dart and Flutter Conventions
@@ -34,7 +34,7 @@
 
 ## State Management
 
-- No third-party state library. The planned design: a pure-Dart `GameEngine` (no Flutter imports) applies named actions to an immutable `GameState` and returns the new state plus events. A `GameController` (ChangeNotifier / ValueNotifier) holds state and is exposed through `InheritedNotifier` / `InheritedWidget` (`AppScope`) so tests can inject fakes.
+- No third-party state library. Implemented: a pure-Dart `GameEngine` (no Flutter imports) applies named actions to an immutable `GameState` and returns the new state plus events. A `GameController` (ChangeNotifier / ValueNotifier) holds state and is exposed through `InheritedNotifier` / `InheritedWidget` (`AppScope`) so tests can inject fakes.
 - Widgets read narrow slices with `ValueListenableBuilder` or selectors; they never mutate game rules.
 - Settings live in a separate `SettingsController`, independent of game state.
 
@@ -83,3 +83,22 @@ Do not run long-lived dev servers from agent tool calls; tell the user to run th
 ## Secrets and Configuration
 
 - No secrets in the repo. AI endpoint/key come from `--dart-define` or user entry in Settings, stored only in the settings store.
+
+## Game Engine Rules
+
+- All rules live in `GameEngine`; widgets call `GameController` actions and read state. Never change state from a widget.
+- Rejected actions return the same state with `ActionRejected` (message + optional hint). Show both; never swallow.
+- Effects are idempotent: items are never granted twice (`acquiredItemIds`), solved puzzles never re-reward, use rules apply once but may replay their text.
+- On-device check: `flutter test integration_test -d <device>`.
+
+## Agent Hooks
+
+- v2 hooks live in `.kiro/hooks/*.json` (Kiro 1.4.62); details, verification and limits are in `docs/KIRO_WORKFLOW.md`.
+- Hook scripts (`tool/hooks/`) must stay read-only: never edit project files, stage, commit, push or delete. This is what prevents hooks from re-triggering themselves.
+- Create or change hooks with Kiro's `createHook` tool, not by hand. New hooks load at the next session start.
+- Before committing outside the agent, include `#pre-commit-check`.
+
+## Custom Agent, Skills, MCP, Powers
+
+- `.kiro/agents/game-quality-agent.md` is a read-only reviewer (tools `read`, `shell`). Run it before a commit, demo or submission and act on its report. Details and limits are in `docs/KIRO_ADVANCED_FEATURES.md`.
+- No MCP servers and no Kiro Powers are configured. Do not add either without a review. The `security-audit` skill is user-level (`~/.kiro/skills/`), not a Power.

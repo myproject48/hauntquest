@@ -1,23 +1,28 @@
 import 'package:flutter/material.dart';
 
 import '../../app/app_scope.dart';
+import '../../app/game_controller.dart';
 import '../../content/definitions/puzzle_def.dart';
 import '../../core/design/manor_tokens.dart';
 import '../../core/design/motion_policy.dart';
 import '../../core/design/tokens.dart';
+import '../../core/painting/item_icons.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/widgets/entrance.dart';
 import '../../core/widgets/manor_panel.dart';
 import '../../core/widgets/manor_scaffold.dart';
 import '../../core/widgets/spectral_button.dart';
+import '../../domain/engine/game_engine.dart';
+import '../../domain/engine/game_events.dart';
 import '../../domain/puzzles/puzzle_evaluator.dart';
+import '../../domain/audio/sound_cue.dart';
+import '../room/room_sheets.dart' show HintLine;
 import 'puzzle_controls.dart';
+import 'inscription_control.dart';
+import '../guide/guide_panel.dart';
 
-/// A close-up of one puzzle. The player works the control, presses Check, and
-/// the pure evaluator says whether it is right, nearly right, or wrong.
-///
-/// Solving does not yet unlock anything: there is no game state to change.
-/// The screen says so plainly instead of pretending.
+/// A close-up of one puzzle. The player works the control and presses Check;
+/// the game engine decides, records the attempt, and applies the rewards.
 class PuzzleScreen extends StatefulWidget {
   const PuzzleScreen({super.key, required this.puzzleId});
 
@@ -29,21 +34,36 @@ class PuzzleScreen extends StatefulWidget {
 
 class _PuzzleScreenState extends State<PuzzleScreen> {
   PuzzleInput? _input;
+  EngineResult? _result;
   Verdict? _verdict;
-  int _attempts = 0;
   int _hintTier = 0;
   int _resetCount = 0;
 
-  void _submit(PuzzleDef def, PuzzleInput input) {
+  void _submit(GameController game, PuzzleDef def, PuzzleInput input) {
+    final r = def.kind == PuzzleKind.useItem && input is UseItemInput
+        ? game.useItem(input.itemId, def.hotspotId)
+        : game.submitPuzzle(def.id, input);
     setState(() {
-      _verdict = evaluatePuzzle(def, input);
-      _attempts++;
+      _result = r;
+      if (r.events.any((e) => e is PuzzleSolved)) {
+        _verdict = Verdict.correct;
+      } else if (r.events.any((e) => e is PuzzleAttempted)) {
+        // The engine counted a wrong attempt; say how close it was.
+        final v = input is UseItemInput && input.itemId != def.config['itemId']
+            ? Verdict.incorrect
+            : evaluatePuzzle(def, input);
+        _verdict = v == Verdict.correct ? Verdict.incorrect : v;
+      } else {
+        _verdict = null;
+      }
     });
   }
 
-  void _reset() => setState(() {
+  void _reset(GameController game, PuzzleDef def) => setState(() {
+    game.savePuzzleProgress(def.id, initialInputFor(def), _hintTier);
     _input = null;
     _verdict = null;
+    _result = null;
     _resetCount++;
   });
 
@@ -51,90 +71,121 @@ class _PuzzleScreenState extends State<PuzzleScreen> {
   Widget build(BuildContext context) {
     final services = AppScope.of(context);
     final content = services.content;
+    final game = services.game;
     final def = content.puzzleById(widget.puzzleId)!;
     final room = content.roomById(def.roomId);
 
     return ListenableBuilder(
-      listenable: services.preview,
+      listenable: game,
       builder: (context, _) {
-        final preview = services.preview;
-        final owned = preview.inventory;
+        final theme = Theme.of(context);
+        final access = game.puzzleAccess(def);
+        final solvedEarlier =
+            access == PuzzleAccess.solved && _verdict != Verdict.correct;
+        final owned = game.inventory;
         final missing = [
           for (final id in def.requiresItems)
             if (!owned.contains(id)) content.itemById(id)!.name,
         ];
-        // Item puzzles handle their own missing-item message.
-        final blocksCheck =
-            missing.isNotEmpty &&
-            def.kind != PuzzleKind.useItem &&
-            def.kind != PuzzleKind.combine;
-        final current = _input ?? initialInputFor(def);
-        final theme = Theme.of(context);
+        final blocked =
+            access == PuzzleAccess.locked ||
+            access == PuzzleAccess.missingItems;
+        final interactive = access == PuzzleAccess.available;
+        final saved = game.state.puzzleProgress[def.id];
+        final current = _input ?? saved?.input ?? initialInputFor(def);
+        _hintTier = saved?.hintTier ?? 0;
+        final attempts = game.state.puzzleAttempts[def.id] ?? 0;
 
-        Widget control;
         final key = ValueKey('${def.id}-$_resetCount');
-        switch (def.kind) {
-          case PuzzleKind.sequence:
-            control = SequenceControl(
-              key: key,
-              def: def,
-              enabled: !blocksCheck,
-              onChanged: (v) => setState(() => _input = v),
-            );
-          case PuzzleKind.cipher:
-            control = CipherControl(
-              key: key,
-              def: def,
-              enabled: !blocksCheck,
-              onChanged: (v) => setState(() => _input = v),
-              onSubmit: () => _submit(def, _input ?? current),
-            );
-          case PuzzleKind.dial:
-            control = DialControl(
-              key: key,
-              def: def,
-              enabled: !blocksCheck,
-              onChanged: (v) => setState(() => _input = v),
-            );
-          case PuzzleKind.combine:
-            control = CombineControl(
-              key: key,
-              def: def,
-              items: content.items,
-              owned: owned,
-              enabled: true,
-              onChanged: (v) => setState(() => _input = v),
-            );
-          case PuzzleKind.useItem:
-            final itemId = def.config['itemId'] as String;
-            control = UseItemControl(
-              key: key,
-              def: def,
-              item: content.itemById(itemId)!,
-              targetLabel:
-                  content.hotspotById(def.hotspotId)?.label ?? 'Object',
-              owned: owned.contains(itemId),
-              onUse: () => _submit(def, UseItemInput(itemId)),
-            );
-          case PuzzleKind.clock:
-            control = ClockControl(
-              key: key,
-              enabled: !blocksCheck,
-              onChanged: (v) => setState(() => _input = v),
-            );
-          case PuzzleKind.gears:
-            control = GearsControl(
-              key: key,
-              def: def,
-              enabled: !blocksCheck,
-              onChanged: (v) => setState(() => _input = v),
-            );
+        void changed(PuzzleInput v) {
+          services.audio.play(SoundCue.interact);
+          game.savePuzzleProgress(def.id, v, _hintTier);
+          setState(() {
+            _input = v;
+            _verdict = null;
+            _result = null;
+          });
         }
 
-        final showCheck = def.kind != PuzzleKind.useItem;
+        final Widget control = def.config['variant'] != null
+            ? InscriptionControl(
+                key: key,
+                def: def,
+                input: current,
+                enabled: interactive,
+                onChanged: changed,
+              )
+            : switch (def.kind) {
+                PuzzleKind.sequence => SequenceControl(
+                  initial: current,
+                  key: key,
+                  def: def,
+                  enabled: interactive,
+                  onChanged: changed,
+                ),
+                PuzzleKind.cipher => CipherControl(
+                  initial: current,
+                  key: key,
+                  def: def,
+                  enabled: interactive,
+                  onChanged: changed,
+                  onSubmit: () => _submit(game, def, _input ?? current),
+                ),
+                PuzzleKind.dial => DialControl(
+                  initial: current,
+                  key: key,
+                  def: def,
+                  enabled: interactive,
+                  onChanged: changed,
+                ),
+                PuzzleKind.combine => CombineControl(
+                  initial: current,
+                  key: key,
+                  def: def,
+                  items: content.items,
+                  owned: owned,
+                  enabled: interactive,
+                  onChanged: changed,
+                ),
+                PuzzleKind.useItem => UseItemControl(
+                  key: key,
+                  def: def,
+                  item: content.itemById(def.config['itemId'] as String)!,
+                  targetLabel:
+                      content.hotspotById(def.hotspotId)?.label ?? 'Object',
+                  owned: interactive && owned.contains(def.config['itemId']),
+                  onUse: () => _submit(
+                    game,
+                    def,
+                    UseItemInput(def.config['itemId'] as String),
+                  ),
+                ),
+                PuzzleKind.clock => ClockControl(
+                  initial: current,
+                  key: key,
+                  enabled: interactive,
+                  onChanged: changed,
+                ),
+                PuzzleKind.gears => GearsControl(
+                  initial: current,
+                  key: key,
+                  def: def,
+                  enabled: interactive,
+                  onChanged: changed,
+                ),
+              };
+
+        final solvedNow = _verdict == Verdict.correct;
 
         return ManorScaffold(
           title: def.title,
+          actions: [
+            IconButton(
+              tooltip: 'The Whispering Guide',
+              icon: const Icon(Icons.flare_rounded),
+              onPressed: () => showWhisperingGuide(context, puzzleId: def.id),
+            ),
+          ],
           subtitle: room?.name,
           body: ListView(
             padding: const EdgeInsets.all(AppSpacing.lg),
@@ -144,54 +195,84 @@ class _PuzzleScreenState extends State<PuzzleScreen> {
                   child: Text(def.intro, style: theme.textTheme.bodyLarge),
                 ),
               ),
-              if (blocksCheck) ...[
+              if (def.config['variant'] != null && def.clues.isNotEmpty) ...[
                 const SizedBox(height: AppSpacing.md),
-                FadeSlideIn(
-                  delay: const Duration(milliseconds: 60),
-                  child: _MissingPanel(names: missing),
-                ),
-              ],
-              const SizedBox(height: AppSpacing.md),
-              FadeSlideIn(
-                delay: const Duration(milliseconds: 120),
-                child: ManorPanel(
-                  tone: PanelTone.strong,
-                  padding: const EdgeInsets.all(AppSpacing.xl),
-                  child: control,
-                ),
-              ),
-              const SizedBox(height: AppSpacing.lg),
-              if (showCheck)
-                Wrap(
-                  alignment: WrapAlignment.center,
-                  spacing: AppSpacing.sm,
-                  runSpacing: AppSpacing.sm,
-                  children: [
-                    SpectralButton(
-                      label: 'Check',
-                      icon: Icons.check_rounded,
-                      onPressed: blocksCheck
-                          ? null
-                          : () => _submit(def, current),
-                      disabledReason: blocksCheck
-                          ? 'You still need: ${missing.join(', ')}.'
-                          : null,
-                    ),
-                    SpectralButton(
-                      label: 'Reset',
-                      style: SpectralStyle.quiet,
-                      onPressed: _reset,
-                    ),
-                  ],
-                )
-              else
-                Center(
-                  child: SpectralButton(
-                    label: 'Reset',
-                    style: SpectralStyle.quiet,
-                    onPressed: _reset,
+                ManorPanel(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Visible clues', style: theme.textTheme.labelMedium),
+                      for (final clue in def.clues)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8),
+                          child: Text(
+                            clue.isHotspot
+                                ? content
+                                      .hotspotById(clue.sourceId)!
+                                      .description
+                                      .resolve(game.state)
+                                : game.state.wasAcquired(clue.sourceId)
+                                ? content
+                                      .itemById(clue.sourceId)!
+                                      .detail
+                                      .resolve(game.state)
+                                : 'Find ${content.itemById(clue.sourceId)!.name} to read this clue.',
+                            style: theme.textTheme.bodyMedium,
+                          ),
+                        ),
+                    ],
                   ),
                 ),
+              ],
+              if (solvedEarlier) ...[
+                const SizedBox(height: AppSpacing.md),
+                _SolvedPanel(def: def),
+              ],
+              if (blocked) ...[
+                const SizedBox(height: AppSpacing.md),
+                _BlockedPanel(
+                  title: access == PuzzleAccess.missingItems
+                      ? 'Something is missing'
+                      : 'Not yet',
+                  text: access == PuzzleAccess.missingItems
+                      ? 'You need: ${missing.join(', ')}. You can look, but you cannot try it yet.'
+                      : 'You cannot try this yet.',
+                  hint: game.engine.hints.puzzle(def, game.state),
+                ),
+              ],
+              if (!solvedEarlier) ...[
+                const SizedBox(height: AppSpacing.md),
+                FadeSlideIn(
+                  delay: const Duration(milliseconds: 120),
+                  child: ManorPanel(
+                    tone: PanelTone.strong,
+                    padding: const EdgeInsets.all(AppSpacing.xl),
+                    child: control,
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.lg),
+                if (!solvedNow)
+                  Wrap(
+                    alignment: WrapAlignment.center,
+                    spacing: AppSpacing.sm,
+                    runSpacing: AppSpacing.sm,
+                    children: [
+                      if (def.kind != PuzzleKind.useItem)
+                        SpectralButton(
+                          label: 'Check',
+                          icon: Icons.check_rounded,
+                          onPressed: interactive
+                              ? () => _submit(game, def, current)
+                              : null,
+                        ),
+                      SpectralButton(
+                        label: 'Reset',
+                        style: SpectralStyle.quiet,
+                        onPressed: interactive ? () => _reset(game, def) : null,
+                      ),
+                    ],
+                  ),
+              ],
               AnimatedSwitcher(
                 duration: MotionPolicy.reduceOf(context)
                     ? Duration.zero
@@ -207,21 +288,35 @@ class _PuzzleScreenState extends State<PuzzleScreen> {
                 child: _verdict == null
                     ? const SizedBox.shrink(key: ValueKey('none'))
                     : Padding(
-                        key: ValueKey('$_verdict-$_attempts'),
+                        key: ValueKey('$_verdict-$attempts'),
                         padding: const EdgeInsets.only(top: AppSpacing.lg),
                         child: _VerdictPanel(
-                          def: def,
                           verdict: _verdict!,
-                          attempts: _attempts,
+                          text: _result?.message ?? '',
+                          attempts: attempts,
+                          result: _result,
+                          game: game,
                         ),
                       ),
               ),
-              const SizedBox(height: AppSpacing.xl),
-              _Hints(
-                hints: def.hints,
-                tier: _hintTier,
-                onReveal: () => setState(() => _hintTier++),
-              ),
+              if (solvedNow || solvedEarlier) ...[
+                const SizedBox(height: AppSpacing.lg),
+                Center(
+                  child: SpectralButton(
+                    label: 'Back to the room',
+                    icon: Icons.arrow_back_rounded,
+                    onPressed: () => Navigator.maybePop(context),
+                  ),
+                ),
+              ],
+              if (!solvedNow && !solvedEarlier) ...[
+                const SizedBox(height: AppSpacing.xl),
+                _Hints(
+                  hints: def.hints,
+                  tier: _hintTier,
+                  onReveal: () => game.revealPuzzleHint(def.id),
+                ),
+              ],
               const SizedBox(height: AppSpacing.xl),
             ],
           ),
@@ -231,40 +326,80 @@ class _PuzzleScreenState extends State<PuzzleScreen> {
   }
 }
 
-class _MissingPanel extends StatelessWidget {
-  const _MissingPanel({required this.names});
+class _SolvedPanel extends StatelessWidget {
+  const _SolvedPanel({required this.def});
 
-  final List<String> names;
+  final PuzzleDef def;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Semantics(
-      container: true,
-      child: ManorPanel(
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Icon(Icons.lock_outline_rounded, color: AppColors.fog),
-            const SizedBox(width: AppSpacing.md),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Something is missing',
-                    style: theme.textTheme.titleMedium,
+    return ManorPanel(
+      tone: PanelTone.discovery,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(Icons.check_circle_rounded, color: AppColors.ghostGreen),
+          const SizedBox(width: AppSpacing.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Solved',
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    color: AppColors.ghostGreen,
                   ),
-                  const SizedBox(height: AppSpacing.xs),
-                  Text(
-                    'You need: ${names.join(', ')}. You can look, but you cannot try it yet.',
-                    style: theme.textTheme.bodyMedium,
-                  ),
-                ],
-              ),
+                ),
+                const SizedBox(height: AppSpacing.xs),
+                Text(def.successText, style: theme.textTheme.bodyMedium),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _BlockedPanel extends StatelessWidget {
+  const _BlockedPanel({
+    required this.title,
+    required this.text,
+    required this.hint,
+  });
+
+  final String title;
+  final String text;
+  final String hint;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return ManorPanel(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Icon(Icons.lock_outline_rounded, color: AppColors.fog),
+              const SizedBox(width: AppSpacing.md),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(title, style: theme.textTheme.titleMedium),
+                    const SizedBox(height: AppSpacing.xs),
+                    Text(text, style: theme.textTheme.bodyMedium),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.md),
+          HintLine(text: hint),
+        ],
       ),
     );
   }
@@ -272,43 +407,43 @@ class _MissingPanel extends StatelessWidget {
 
 class _VerdictPanel extends StatelessWidget {
   const _VerdictPanel({
-    required this.def,
     required this.verdict,
+    required this.text,
     required this.attempts,
+    required this.result,
+    required this.game,
   });
 
-  final PuzzleDef def;
   final Verdict verdict;
+  final String text;
   final int attempts;
+  final EngineResult? result;
+  final GameController game;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final (icon, color, title, text) = switch (verdict) {
+    final (icon, color, title) = switch (verdict) {
       Verdict.correct => (
         Icons.check_circle_rounded,
         AppColors.ghostGreen,
         'That is right',
-        def.successText,
       ),
-      Verdict.partial => (
-        Icons.tune_rounded,
-        AppColors.goldLight,
-        'Almost',
-        def.partialText ?? 'You are close. Something is still not quite right.',
-      ),
-      Verdict.incorrect => (
-        Icons.close_rounded,
-        AppColors.danger,
-        'Not yet',
-        def.incorrectText,
-      ),
+      Verdict.partial => (Icons.tune_rounded, AppColors.goldLight, 'Almost'),
+      Verdict.incorrect => (Icons.close_rounded, AppColors.danger, 'Not yet'),
     };
+    final items = result?.itemsAcquired ?? const <String>[];
+    final exits = result?.exitsOpened ?? const <String>[];
+    final rewards = [
+      for (final id in items) 'Found: ${game.content.itemById(id)?.name ?? id}',
+      for (final id in exits)
+        'A way opens: ${game.content.exitById(id)?.label ?? id}',
+    ];
 
     return Semantics(
       liveRegion: true,
       container: true,
-      label: '$title. $text',
+      label: '$title. $text ${rewards.join('. ')}',
       child: ExcludeSemantics(
         child: ManorPanel(
           tone: verdict == Verdict.correct
@@ -327,45 +462,67 @@ class _VerdictPanel extends StatelessWidget {
                       style: theme.textTheme.titleLarge?.copyWith(color: color),
                     ),
                   ),
-                  Text('Attempt $attempts', style: theme.textTheme.bodySmall),
+                  if (verdict != Verdict.correct)
+                    Text('Attempt $attempts', style: theme.textTheme.bodySmall),
                 ],
               ),
               const SizedBox(height: AppSpacing.sm),
               Text(text, style: theme.textTheme.bodyLarge),
-              if (verdict == Verdict.correct) ...[
+              for (final id in items) ...[
                 const SizedBox(height: AppSpacing.md),
-                Container(
-                  padding: const EdgeInsets.all(AppSpacing.md),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(AppRadius.md),
-                    color: AppColors.midnight.withValues(alpha: 0.7),
-                    border: Border.all(
-                      color: ManorTokens.of(context).panelBorder
-                          .withValues(alpha: 0.5),
-                    ),
+                _Reward(
+                  icon: ItemIcon(
+                    iconId: game.content.itemById(id)!.iconId,
+                    size: 44,
                   ),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Icon(
-                        Icons.info_outline_rounded,
-                        size: 18,
-                        color: AppColors.moonCyan,
-                      ),
-                      const SizedBox(width: AppSpacing.sm),
-                      Expanded(
-                        child: Text(
-                          'Preview: the answer is checked, but rewards such as new items and open doors are not applied yet.',
-                          style: theme.textTheme.bodySmall,
-                        ),
-                      ),
-                    ],
+                  text:
+                      'Added to inventory: ${game.content.itemById(id)!.name}',
+                ),
+              ],
+              for (final id in exits) ...[
+                const SizedBox(height: AppSpacing.sm),
+                _Reward(
+                  icon: const Icon(
+                    Icons.door_front_door_rounded,
+                    color: AppColors.ghostGreen,
+                    size: 32,
                   ),
+                  text:
+                      'A way opens: ${game.content.exitById(id)?.label ?? id}',
                 ),
               ],
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _Reward extends StatelessWidget {
+  const _Reward({required this.icon, required this.text});
+
+  final Widget icon;
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = ManorTokens.of(context);
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.sm),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(AppRadius.md),
+        color: AppColors.midnight.withValues(alpha: 0.7),
+        border: Border.all(color: tokens.panelBorder.withValues(alpha: 0.6)),
+      ),
+      child: Row(
+        children: [
+          SizedBox(width: 48, child: Center(child: icon)),
+          const SizedBox(width: AppSpacing.sm),
+          Expanded(
+            child: Text(text, style: Theme.of(context).textTheme.bodyMedium),
+          ),
+        ],
       ),
     );
   }

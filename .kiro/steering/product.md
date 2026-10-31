@@ -47,6 +47,7 @@ AI is an optional enhancement that may rephrase hints or add flavor lines. The g
 ## Current Status (keep this section truthful)
 
 - Done: project foundation, the Kiro spec, the narrative content with validation, pure puzzle evaluators, and the full game interface (splash, menu, save slots, intro, room exploration, inventory, puzzles, dialogue, journal and evidence board, settings, endings, credits) with original code-drawn art. Display and accessibility settings persist.
-- Not done: the game engine and game state (rewards, opening exits, recording choices, ending resolution from play), saving progress, audio, and AI. The UI runs on a read-only `PreviewController` and labels these limits on screen. Do not describe them as existing until implemented.
+- Done (engine): a pure-Dart `GameEngine` with immutable `GameState` runs every action (move, examine, collect, use item, puzzle, conversation, ending). The whole story is playable from start to all three endings in one session. The Entrance Hall and Library are verified end to end on an Android emulator.
+- Not done: saving to the device (progress lasts while the app is open), audio, and AI. Do not describe these as existing until implemented.
 
 Source of truth for scope: `.kiro/specs/hauntquest-ai-game/` (requirements.md, design.md, tasks.md).

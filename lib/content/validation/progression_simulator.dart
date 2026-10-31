@@ -202,6 +202,26 @@ class ProgressionSimulator {
         );
       }
     }
+    for (final c in content.choices) {
+      if (!leaves.any((leaf) => leaf.state.choiceResolved(c.id))) {
+        issues.add(
+          ContentIssue.error(
+            'dialogue_unreachable',
+            'Dialogue "${c.id}" has no attainable branch.',
+          ),
+        );
+      }
+    }
+    for (final entry in content.story.journalEntries) {
+      if (!leaves.any((leaf) => entry.unlockWhen.evaluate(leaf.state))) {
+        issues.add(
+          ContentIssue.error(
+            'journal_unreachable',
+            'Journal "${entry.id}" can never be discovered.',
+          ),
+        );
+      }
+    }
     return _dedupe(issues);
   }
 
@@ -224,6 +244,10 @@ class ProgressionSimulator {
   void _explore(SimState s, List<String> path) {
     if (leaves.length >= maxLeaves) {
       truncated = true;
+      return;
+    }
+    if (s.resolved.contains(content.story.finalChoiceId)) {
+      leaves.add(SimLeaf(s, path, _endingFor(s)));
       return;
     }
     _closure(s);
@@ -251,6 +275,9 @@ class ProgressionSimulator {
       }
       next.resolved.add(choice.id);
       next.started.remove(choice.id);
+      if (option.nextChoiceId case final nextId?) {
+        next.started = {nextId, ...next.started};
+      }
       _explore(next, [...path, option.id]);
     }
     if (!anyEnabled) {

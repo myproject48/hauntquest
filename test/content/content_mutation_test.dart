@@ -9,6 +9,97 @@ void main() {
   Map<String, dynamic> puzzle(Map<String, dynamic> raw, String id) =>
       byId(listIn(raw, 'puzzles', 'puzzles'), id);
 
+  group('inscribed puzzle configuration constraints', () {
+    test('rejects a mirror that does not reflect the source', () {
+      final raw = freshRaw();
+      (puzzle(raw, 'p14_mirror')['config']['target'] as List)[0] = 1;
+      expect(validateRaw(raw).hasCode('invalid_puzzle_config'), isTrue);
+    });
+    test('rejects a symbol inscription inconsistent with its alphabet', () {
+      final raw = freshRaw();
+      puzzle(raw, 'p10_symbol_seal')['config']['substitution']['☽'] = 'Z';
+      expect(validateRaw(raw).hasCode('invalid_puzzle_config'), isTrue);
+    });
+    test('rejects playback that teaches a different frequency answer', () {
+      final raw = freshRaw();
+      puzzle(raw, 'p16_echo_frequencies')['config']['frequencies'] = [
+        550,
+        330,
+        220,
+      ];
+      expect(validateRaw(raw).hasCode('invalid_puzzle_config'), isTrue);
+    });
+  });
+
+  group('stage layout constraints', () {
+    test('rejects a hotspot placed under the HUD and status bar', () {
+      final raw = freshRaw();
+      final hall = byId(listIn(raw, 'rooms', 'rooms'), 'moonlit_hall');
+      byId(
+        (hall['hotspots'] as List).cast<Map<String, dynamic>>(),
+        'q10_symbol_seal',
+      )['area']['y'] = 0.03;
+      expect(validateRaw(raw).hasCode('hotspot_under_hud'), isTrue);
+    });
+    test('the shipped rooms keep every hotspot clear of the HUD', () {
+      expect(validateRaw(freshRaw()).hasCode('hotspot_under_hud'), isFalse);
+    });
+  });
+  group('narrative graph constraints', () {
+    test('rejects missing continuation nodes', () {
+      final raw = freshRaw();
+      byId(
+        listIn(raw, 'choices', 'choices'),
+        'c_tallow_welcome',
+      )['options'][0]['nextChoiceId'] = 'missing';
+      expect(validateRaw(raw).hasCode('unknown_reference'), isTrue);
+    });
+    test('rejects self loops', () {
+      final raw = freshRaw();
+      byId(
+        listIn(raw, 'choices', 'choices'),
+        'c_tallow_welcome',
+      )['options'][0]['nextChoiceId'] = 'c_tallow_welcome';
+      expect(validateRaw(raw).hasCode('dialogue_cycle'), isTrue);
+    });
+    test('rejects multi-node loops even through startChoice effects', () {
+      final raw = freshRaw();
+      byId(
+        listIn(raw, 'choices', 'choices'),
+        'c_tallow_memory',
+      )['options'][0]['effects'] = [
+        {'type': 'startChoice', 'id': 'c_tallow_welcome'},
+      ];
+      expect(validateRaw(raw).hasCode('dialogue_cycle'), isTrue);
+    });
+    test(
+      'rejects evidence links to undisclosed or nonexistent definitions',
+      () {
+        final raw = freshRaw();
+        raw['story']['evidenceLinks'][0]['to'] = 'missing';
+        expect(validateRaw(raw).hasCode('unknown_reference'), isTrue);
+      },
+    );
+    test('rejects conditions referencing missing flags in reactions', () {
+      final raw = freshRaw();
+      byId(
+        listIn(raw, 'choices', 'choices'),
+        'c_echo_identity',
+      )['prompt']['variants'][0]['when']['id'] = 'missing';
+      expect(validateRaw(raw).hasCode('unknown_reference'), isTrue);
+    });
+    test('rejects unreachable narrative nodes', () {
+      final raw = freshRaw();
+      for (final option in byId(
+        listIn(raw, 'choices', 'choices'),
+        'c_tallow_welcome',
+      )['options']) {
+        option.remove('nextChoiceId');
+      }
+      expect(validateRaw(raw).hasCode('dialogue_unreachable'), isTrue);
+    });
+  });
+
   group('unique identifiers', () {
     test('detects a duplicated item id', () {
       final raw = freshRaw();
@@ -122,33 +213,32 @@ void main() {
   group('reachable endings', () {
     test('detects an ending whose trigger can never happen', () {
       final raw = freshRaw();
-      final accept =
-          (byId(listIn(raw, 'choices', 'choices'), 'c_maul_bargain')['options']
+      final seal =
+          (byId(listIn(raw, 'choices', 'choices'), 'c_echo_fate')['options']
                   as List)
               .cast<Map<String, dynamic>>()
-              .firstWhere((o) => o['id'] == 'mb_accept');
-      accept['effects'] = <dynamic>[];
+              .firstWhere((o) => o['id'] == 'ef_seal');
+      seal['enabledWhen'] = {
+        'type': 'not',
+        'of': {'type': 'always'},
+      };
       final report = validateRaw(raw);
       expect(report.hasCode('ending_unreachable'), isTrue);
-      expect(
-        report.issues.any((i) => i.message.contains('keepers_chair')),
-        isTrue,
-      );
+      expect(report.issues.any((i) => i.message.contains('seal_echo')), isTrue);
     });
 
     test('detects a dead end when no final option is enabled', () {
       final raw = freshRaw();
-      final release =
-          (byId(listIn(raw, 'choices', 'choices'), 'c_echo_fate')['options']
-                  as List)
-              .cast<Map<String, dynamic>>()
-              .firstWhere((o) => o['id'] == 'ef_release');
-      release['enabledWhen'] = {
-        'type': 'flagAtLeast',
-        'id': 'acceptedBargain',
-        'value': 1,
-      };
-      release['disabledReason'] = 'Not yet.';
+      final options =
+          byId(listIn(raw, 'choices', 'choices'), 'c_echo_fate')['options']
+              as List;
+      for (final option in options) {
+        option['enabledWhen'] = {
+          'type': 'not',
+          'of': {'type': 'always'},
+        };
+        option['disabledReason'] = 'Not yet.';
+      }
       expect(validateRaw(raw).hasCode('dead_end'), isTrue);
     });
 
@@ -275,7 +365,7 @@ void main() {
           (byId(listIn(raw, 'choices', 'choices'), 'c_echo_fate')['options']
                   as List)
               .cast<Map<String, dynamic>>()
-              .firstWhere((o) => o['id'] == 'ef_claim');
+              .firstWhere((o) => o['id'] == 'ef_seal');
       claim.remove('disabledReason');
       expect(validateRaw(raw).hasCode('missing_disabled_reason'), isTrue);
     });

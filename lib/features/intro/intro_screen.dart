@@ -24,7 +24,7 @@ class _IntroScreenState extends State<IntroScreen> {
   bool _lineDone = false;
 
   void _enterManor() {
-    AppScope.of(context).preview.restart();
+    AppScope.of(context).game.restart();
     context.pushReplacementMist(const RoomScreen());
   }
 

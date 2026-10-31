@@ -9,7 +9,7 @@ import '../../core/widgets/fill_or_scroll.dart';
 import '../../core/widgets/manor_panel.dart';
 import '../../core/widgets/spectral_button.dart';
 import '../about/about_screen.dart';
-import '../intro/intro_screen.dart';
+import 'new_game_action.dart';
 import '../saves/save_slots_screen.dart';
 import '../settings/settings_screen.dart';
 
@@ -174,7 +174,7 @@ class _MenuActions extends StatelessWidget {
             label: 'Begin Quest',
             icon: Icons.auto_stories_rounded,
             expand: true,
-            onPressed: () => context.pushMist(const IntroScreen()),
+            onPressed: () => _beginQuest(context),
           ),
         ),
         const SizedBox(height: AppSpacing.md),
@@ -214,7 +214,7 @@ class _MenuActions extends StatelessWidget {
         FadeSlideIn(
           delay: const Duration(milliseconds: 600),
           child: Text(
-            'Playable preview. You can explore every room, read the story and try the puzzles. Saving and story progress are still being built.',
+            'Your journey saves automatically. Original soundscapes await within; volume and mute controls are in Settings.',
             textAlign: TextAlign.center,
             style: theme.textTheme.bodySmall,
           ),
@@ -223,3 +223,5 @@ class _MenuActions extends StatelessWidget {
     );
   }
 }
+
+Future<void> _beginQuest(BuildContext context) => beginNewGame(context);

@@ -97,6 +97,17 @@ class ProgressionGraph {
       b.writeln('  ${_id('room_${h.roomId}')} --> ${_id('ch_${h.choiceId}')}');
     }
 
+    // Shared dialogue nodes are declared once; labeled edges show branches.
+    for (final choice in content.choices) {
+      for (final option in choice.options) {
+        if (option.nextChoiceId case final nextId?) {
+          b.writeln(
+            '  ${_id('ch_${choice.id}')} -->|"${_label(option.label)}"| ${_id('ch_$nextId')}',
+          );
+        }
+      }
+    }
+
     // Final choice to endings.
     for (final e in content.story.endings) {
       b.writeln(

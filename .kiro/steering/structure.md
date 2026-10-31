@@ -10,7 +10,7 @@ lib/
     app_services.dart            # loads + validates content and settings at startup
     app_scope.dart               # InheritedWidget exposing AppServices
     settings_controller.dart     # AppSettings, SettingsStore, PrefsSettingsStore
-    preview_controller.dart      # TEMPORARY read-only state until the engine exists
+    game_controller.dart         # owns GameState, runs GameEngine, feedback notes, review mode
   core/
     design/                      # tokens (spacing, radius, motion, glow, layout),
                                  # ManorTokens theme extension, MotionPolicy
@@ -22,7 +22,11 @@ lib/
     widgets/                     # SpectralButton, PressableScale, ManorPanel, ManorScaffold,
                                  # FogLayer, GrainOverlay, FadeSlideIn, TypewriterText, FillOrScroll
     navigation/mist_route.dart   # page transition + context.pushMist
-  domain/puzzles/                # pure evaluatePuzzle + PuzzleInput types
+  domain/
+    models/game_state.dart     # immutable, JSON round-trip, implements ProgressView
+    engine/                    # GameEngine (all rules), GameEvent / ActionRejected
+    hints/blocked_hints.dart   # nudges for blocked actions (never the solution)
+    puzzles/                   # pure evaluatePuzzle + PuzzleInput types
   features/                      # splash, menu, saves, intro, room, inventory, puzzle,
                                  # dialogue, journal, settings, ending, about
   content/                       # pure Dart, no Flutter imports
@@ -38,7 +42,8 @@ docs/LICENSES_AND_ASSETS.md
 tool/generate_progression_graph.dart
 test/content/                    # content, validator, and negative mutation tests
 test/domain/                     # puzzle evaluator tests
-test/ui/                         # app flows, responsive layouts, accessibility (ui_harness.dart)
+test/ui/                         # app flows, exploration, responsive layouts, accessibility (ui_harness.dart)
+integration_test/                # on-device playthrough of the Hall and Library
 .kiro/specs/hauntquest-ai-game/  # requirements, design, tasks
 .kiro/steering/                  # these steering files
 ```

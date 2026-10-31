@@ -1,129 +1,159 @@
 import 'package:flutter/material.dart';
 
-import '../../core/design/manor_tokens.dart';
+import '../../app/app_scope.dart';
+import '../../app/game_controller.dart';
+import '../../app/game_store.dart';
 import '../../core/design/tokens.dart';
 import '../../core/navigation/mist_route.dart';
-import '../../core/painting/item_icons.dart';
 import '../../core/widgets/entrance.dart';
 import '../../core/widgets/manor_panel.dart';
 import '../../core/widgets/manor_scaffold.dart';
 import '../../core/widgets/spectral_button.dart';
-import '../intro/intro_screen.dart';
+import '../../core/theme/app_colors.dart';
+import '../menu/new_game_action.dart';
+import '../ending/ending_screen.dart';
+import '../room/room_screen.dart';
 
-/// Lists the autosave and three manual save slots.
-///
-/// Saving is not built yet, so every slot is honestly shown as empty. The
-/// screen is ready to show real saves once the persistence layer exists.
+/// The Continue screen: shows the autosaved journey (or recovery notes when
+/// a save could not be restored) and resumes it. One journey is kept at a
+/// time; there are no manual slots.
 class SaveSlotsScreen extends StatelessWidget {
   const SaveSlotsScreen({super.key});
 
-  static const _slots = [
-    ('Autosave', 'Written automatically when you move or solve something.'),
-    ('Slot 1', 'Keep a journey of your own here.'),
-    ('Slot 2', 'Keep a journey of your own here.'),
-    ('Slot 3', 'Keep a journey of your own here.'),
-  ];
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return ManorScaffold(
-      title: 'Continue',
-      subtitle: 'Saved journeys',
-      body: ListView(
-        padding: const EdgeInsets.all(AppSpacing.lg),
-        children: [
-          FadeSlideIn(
-            child: ManorPanel(
-              tone: PanelTone.discovery,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Semantics(
-                    header: true,
-                    child: Text(
-                      'No saved journeys yet',
-                      style: theme.textTheme.titleLarge,
-                    ),
-                  ),
-                  const SizedBox(height: AppSpacing.sm),
-                  Text(
-                    'Saving is not built yet, so there is nothing to continue. You can begin a new quest and explore the manor.',
-                    style: theme.textTheme.bodyMedium,
-                  ),
-                  const SizedBox(height: AppSpacing.lg),
-                  SpectralButton(
-                    label: 'Begin Quest',
-                    icon: Icons.auto_stories_rounded,
-                    onPressed: () =>
-                        context.pushReplacementMist(const IntroScreen()),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: AppSpacing.lg),
-          for (final (i, slot) in _slots.indexed)
-            Padding(
-              padding: const EdgeInsets.only(bottom: AppSpacing.md),
-              child: FadeSlideIn(
-                delay: Duration(milliseconds: 120 + i * 80),
-                child: _SlotCard(title: slot.$1, hint: slot.$2),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-}
-
-class _SlotCard extends StatelessWidget {
-  const _SlotCard({required this.title, required this.hint});
-
-  final String title;
-  final String hint;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final tokens = ManorTokens.of(context);
-    return Semantics(
-      container: true,
-      label: '$title, empty. $hint',
-      child: ExcludeSemantics(
-        child: Container(
-          padding: const EdgeInsets.all(AppSpacing.md),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(AppRadius.md),
-            color: tokens.panelFill.withValues(alpha: 0.6),
-            border: Border.all(
-              color: tokens.panelBorder.withValues(alpha: 0.35),
-            ),
-          ),
-          child: Row(
+    final game = AppScope.of(context).game;
+    return ListenableBuilder(
+      listenable: game,
+      builder: (context, _) {
+        final hasJourney = game.inProgress || game.endingId != null;
+        return ManorScaffold(
+          title: 'Continue',
+          subtitle: 'Saved journeys',
+          body: ListView(
+            padding: const EdgeInsets.all(AppSpacing.lg),
             children: [
-              const ItemIcon(
-                iconId: 'lantern',
-                size: 56,
-                glow: false,
-                dimmed: true,
-              ),
-              const SizedBox(width: AppSpacing.md),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(title, style: theme.textTheme.titleMedium),
-                    const SizedBox(height: 2),
-                    Text('Empty', style: theme.textTheme.labelMedium),
-                    const SizedBox(height: 2),
-                    Text(hint, style: theme.textTheme.bodySmall),
-                  ],
+              Text('Autosave', style: theme.textTheme.labelLarge),
+              const SizedBox(height: AppSpacing.sm),
+              if (game.lastSaveError != null)
+                const ManorPanel(
+                  child: Text(
+                    'Autosave could not finish. Your previous complete save is preserved. Free some device storage and try again.',
+                  ),
+                ),
+              if ({
+                SaveRecovery.corrupt,
+                SaveRecovery.unsupported,
+                SaveRecovery.recoveredBackup,
+              }.contains(game.saveRecovery))
+                ManorPanel(
+                  child: Text(switch (game.saveRecovery) {
+                    SaveRecovery.recoveredBackup => 'A damaged save was recovered from the last valid backup.',
+                    SaveRecovery.unsupported => 'This save belongs to a newer version. It has been preserved. Update the app to resume it, or confirm New Game to replace it.',
+                    _ => 'The saved journey could not be restored safely. Confirm New Game to replace it. Your existing save data has been preserved.',
+                  }),
+                ),
+              if (game.lastSaveError != null)
+                TextButton(
+                  onPressed: game.isSaving ? null : game.retrySave,
+                  child: const Text('Retry autosave'),
+                ),
+              if (hasJourney) ...[
+                FadeSlideIn(child: _CurrentJourney(game: game)),
+                const SizedBox(height: AppSpacing.lg),
+              ],
+              FadeSlideIn(
+                child: ManorPanel(
+                  tone: hasJourney ? PanelTone.normal : PanelTone.discovery,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Semantics(
+                        header: true,
+                        child: Text(
+                          hasJourney
+                              ? 'Your journey is saved'
+                              : 'No saved journeys yet',
+                          style: theme.textTheme.titleLarge,
+                        ),
+                      ),
+                      const SizedBox(height: AppSpacing.sm),
+                      Text(
+                        'Your journey saves automatically after every action, '
+                        'including unfinished puzzles. The manor keeps one '
+                        'journey at a time.',
+                        style: theme.textTheme.bodyMedium,
+                      ),
+                      const SizedBox(height: AppSpacing.lg),
+                      SpectralButton(
+                        label: 'Begin Quest',
+                        icon: Icons.auto_stories_rounded,
+                        onPressed: () => beginNewGame(context),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],
           ),
-        ),
+        );
+      },
+    );
+  }
+}
+
+/// The automatically saved active journey.
+class _CurrentJourney extends StatelessWidget {
+  const _CurrentJourney({required this.game});
+
+  final GameController game;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final s = game.state;
+    final content = game.content;
+    return ManorPanel(
+      tone: PanelTone.discovery,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            s.endingId == null ? 'JOURNEY IN PROGRESS' : 'JOURNEY COMPLETE',
+            style: theme.textTheme.labelMedium?.copyWith(
+              color: AppColors.goldLight,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          Semantics(
+            header: true,
+            child: Text(
+              s.endingId == null
+                  ? game.currentRoom.name
+                  : content.endingById(s.endingId!)!.title,
+              style: theme.textTheme.titleLarge,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          Text(
+            '${s.visitedRoomIds.length}/${content.rooms.length} rooms  ·  '
+            '${s.solvedPuzzleIds.length}/${content.puzzles.length} puzzles  ·  '
+            '${s.inventory.length} items carried',
+            style: theme.textTheme.bodySmall,
+          ),
+          const SizedBox(height: AppSpacing.md),
+          SpectralButton(
+            label: s.endingId == null ? 'Resume' : 'Read your ending',
+            icon: Icons.play_arrow_rounded,
+            expand: true,
+            onPressed: () => context.pushReplacementMist(
+              s.endingId == null
+                  ? const RoomScreen()
+                  : EndingScreen(endingId: s.endingId!, fromPlay: true),
+            ),
+          ),
+        ],
       ),
     );
   }

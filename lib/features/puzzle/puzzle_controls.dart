@@ -11,22 +11,7 @@ import '../../core/theme/app_colors.dart';
 import '../../core/widgets/pressable_scale.dart';
 import '../../core/widgets/spectral_button.dart';
 import '../../domain/puzzles/puzzle_evaluator.dart';
-
-/// Starting input for a puzzle, taken from its content definition.
-PuzzleInput initialInputFor(PuzzleDef def) {
-  final c = def.config;
-  return switch (def.kind) {
-    PuzzleKind.sequence => const SequenceInput([]),
-    PuzzleKind.cipher => const CipherInput(''),
-    PuzzleKind.dial => DialInput(c['start'] as int),
-    PuzzleKind.combine => const PlacedItemsInput({}),
-    PuzzleKind.useItem => const UseItemInput(''),
-    PuzzleKind.clock => const ClockInput(12, 0),
-    PuzzleKind.gears => GearsInput(
-      List.filled((c['target'] as List).length, 0),
-    ),
-  };
-}
+export '../../domain/puzzles/puzzle_progress.dart' show initialInputFor;
 
 String _title(String id) =>
     id.isEmpty ? id : id[0].toUpperCase() + id.substring(1);
@@ -144,6 +129,7 @@ class _Step extends StatelessWidget {
 class SequenceControl extends StatefulWidget {
   const SequenceControl({
     super.key,
+    this.initial,
     required this.def,
     required this.onChanged,
     required this.enabled,
@@ -153,12 +139,16 @@ class SequenceControl extends StatefulWidget {
   final ValueChanged<PuzzleInput> onChanged;
   final bool enabled;
 
+  final PuzzleInput? initial;
+
   @override
   State<SequenceControl> createState() => _SequenceControlState();
 }
 
 class _SequenceControlState extends State<SequenceControl> {
-  final List<String> _picks = [];
+  late final List<String> _picks = List.of(
+    (widget.initial as SequenceInput?)?.picks ?? [],
+  );
 
   List<String> get _options =>
       (widget.def.config['options'] as List).cast<String>();
@@ -259,6 +249,7 @@ class _SequenceControlState extends State<SequenceControl> {
 class CipherControl extends StatefulWidget {
   const CipherControl({
     super.key,
+    this.initial,
     required this.def,
     required this.onChanged,
     required this.onSubmit,
@@ -270,12 +261,16 @@ class CipherControl extends StatefulWidget {
   final VoidCallback onSubmit;
   final bool enabled;
 
+  final PuzzleInput? initial;
+
   @override
   State<CipherControl> createState() => _CipherControlState();
 }
 
 class _CipherControlState extends State<CipherControl> {
-  final _controller = TextEditingController();
+  late final _controller = TextEditingController(
+    text: (widget.initial as CipherInput?)?.text ?? '',
+  );
 
   @override
   void dispose() {
@@ -371,6 +366,7 @@ class _CipherControlState extends State<CipherControl> {
 class DialControl extends StatefulWidget {
   const DialControl({
     super.key,
+    this.initial,
     required this.def,
     required this.onChanged,
     required this.enabled,
@@ -380,12 +376,16 @@ class DialControl extends StatefulWidget {
   final ValueChanged<PuzzleInput> onChanged;
   final bool enabled;
 
+  final PuzzleInput? initial;
+
   @override
   State<DialControl> createState() => _DialControlState();
 }
 
 class _DialControlState extends State<DialControl> {
-  late int _value = widget.def.config['start'] as int;
+  late int _value =
+      (widget.initial as DialInput?)?.value ??
+      widget.def.config['start'] as int;
 
   int get _min => widget.def.config['min'] as int;
   int get _max => widget.def.config['max'] as int;
@@ -453,6 +453,7 @@ class _DialControlState extends State<DialControl> {
 class CombineControl extends StatefulWidget {
   const CombineControl({
     super.key,
+    this.initial,
     required this.def,
     required this.items,
     required this.owned,
@@ -466,12 +467,16 @@ class CombineControl extends StatefulWidget {
   final ValueChanged<PuzzleInput> onChanged;
   final bool enabled;
 
+  final PuzzleInput? initial;
+
   @override
   State<CombineControl> createState() => _CombineControlState();
 }
 
 class _CombineControlState extends State<CombineControl> {
-  final Set<String> _placed = {};
+  late final Set<String> _placed = Set.of(
+    (widget.initial as PlacedItemsInput?)?.itemIds ?? {},
+  );
 
   List<String> get _slots =>
       (widget.def.config['slots'] as List).cast<String>();
@@ -665,6 +670,7 @@ class UseItemControl extends StatelessWidget {
 class ClockControl extends StatefulWidget {
   const ClockControl({
     super.key,
+    this.initial,
     required this.onChanged,
     required this.enabled,
   });
@@ -672,13 +678,15 @@ class ClockControl extends StatefulWidget {
   final ValueChanged<PuzzleInput> onChanged;
   final bool enabled;
 
+  final PuzzleInput? initial;
+
   @override
   State<ClockControl> createState() => _ClockControlState();
 }
 
 class _ClockControlState extends State<ClockControl> {
-  int _hour = 12;
-  int _minute = 0;
+  late int _hour = (widget.initial as ClockInput?)?.hour ?? 12;
+  late int _minute = (widget.initial as ClockInput?)?.minute ?? 0;
 
   void _set(int hour, int minute) {
     setState(() {
@@ -762,6 +770,7 @@ class _ClockControlState extends State<ClockControl> {
 class GearsControl extends StatefulWidget {
   const GearsControl({
     super.key,
+    this.initial,
     required this.def,
     required this.onChanged,
     required this.enabled,
@@ -771,14 +780,16 @@ class GearsControl extends StatefulWidget {
   final ValueChanged<PuzzleInput> onChanged;
   final bool enabled;
 
+  final PuzzleInput? initial;
+
   @override
   State<GearsControl> createState() => _GearsControlState();
 }
 
 class _GearsControlState extends State<GearsControl> {
-  late final List<int> _positions = List.filled(
-    (widget.def.config['target'] as List).length,
-    0,
+  late final List<int> _positions = List.of(
+    (widget.initial as GearsInput?)?.positions ??
+        List.filled((widget.def.config['target'] as List).length, 0),
   );
 
   int get _notches => widget.def.config['positions'] as int;

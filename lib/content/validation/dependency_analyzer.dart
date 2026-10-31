@@ -150,6 +150,8 @@ class DependencyAnalyzer {
           {
             'choice:${c.id}',
             for (final o in c.options) ..._tokensOf(o.effects),
+            for (final o in c.options)
+              if (o.nextChoiceId != null) 'choicestart:${o.nextChoiceId}',
           },
         ),
       );

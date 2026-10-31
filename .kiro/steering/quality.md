@@ -36,11 +36,11 @@ These rules apply to every task and every change.
 
 ## Known Gaps (update as work progresses)
 
-- The UI runs on `PreviewController` (read-only). Solving a puzzle shows the verdict but grants nothing; dialogue answers are not recorded; only the starting exits open. Each screen says so. Replace with the real `GameController` (tasks.md 4 to 10).
-- "Continue" opens save slots that are honestly empty: saving is not built.
-- Settings > Review tools (reveal everything, preview endings) is a review aid, not gameplay. Remove or hide it before release.
+- Progress lives in memory only (`GameController`). Closing the app starts over; the app says so (room panel chip, Continue screen, menu).
+- "Continue" resumes the in-memory journey; the device save slots are honestly empty.
+- Settings > Review tools (reveal everything, preview endings) is a review aid, not gameplay. It snapshots and restores the real journey. Remove or hide it before release.
 - There is no audio; the Settings "Sound" section says so instead of showing dead sliders.
 - The content is validated but not playtested by a human. Clue wording and puzzle difficulty need real play on a device.
-- Not yet run on an Android device or emulator. A Flutter Web release build succeeds.
+- Verified on an Android emulator (API 37) via `integration_test/hall_and_library_test.dart`. Not yet run on a physical Android phone. A Flutter Web release build succeeds.
 - Slice scope needs a decision: the story chains through all five rooms (tasks.md 17.0).
 - Android build and device testing have not been run (no device connected so far).

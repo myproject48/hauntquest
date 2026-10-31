@@ -26,7 +26,7 @@ void main() {
         'The Echo Vault',
       ]);
       expect(content.items, hasLength(10));
-      expect(content.puzzles.length, inInclusiveRange(8, 10));
+      expect(content.puzzles.length, greaterThanOrEqualTo(8));
       expect(content.story.characters.length, greaterThanOrEqualTo(4));
       expect(content.story.endings, hasLength(3));
       expect(content.choices.length, greaterThanOrEqualTo(3));
@@ -84,13 +84,13 @@ void main() {
     test('all three endings are reachable with documented routes', () {
       final routes = {for (final r in report.endingRoutes) r.endingId: r};
       expect(routes.keys.toSet(), {
-        'quiet_dawn',
-        'homecoming',
-        'keepers_chair',
+        'release_echo',
+        'echo_guardian',
+        'seal_echo',
       });
-      expect(routes['quiet_dawn']!.options.last, 'ef_release');
-      expect(routes['homecoming']!.options.last, 'ef_home');
-      expect(routes['keepers_chair']!.options.last, 'ef_claim');
+      expect(routes['release_echo']!.options.last, 'ef_release');
+      expect(routes['echo_guardian']!.options.last, 'ef_guardian');
+      expect(routes['seal_echo']!.options.last, 'ef_seal');
     });
 
     test('Release is always available, so completion is never blocked', () {
@@ -104,18 +104,21 @@ void main() {
       }
     });
 
-    test('Homecoming is achievable without optional dialogue', () {
-      final home = report.endingRoutes.firstWhere(
-        (r) => r.endingId == 'homecoming',
-      );
-      expect(home.leafCount, greaterThan(0));
-      // The cheapest route needs only truth from clues and two kind choices.
-      final sim = ProgressionSimulator(content)..run();
-      final withoutAsk = sim.leaves.where(
-        (l) => l.endingId == 'homecoming' && !l.options.contains('tw_ask'),
-      );
-      expect(withoutAsk, isNotEmpty);
-    });
+    test(
+      'Guardianship is attainable without choosing the optional truth question',
+      () {
+        final home = report.endingRoutes.firstWhere(
+          (r) => r.endingId == 'echo_guardian',
+        );
+        expect(home.leafCount, greaterThan(0));
+        // Discoveries supply the truth requirement; the optional Tallow question is not required.
+        final sim = ProgressionSimulator(content)..run();
+        final withoutAsk = sim.leaves.where(
+          (l) => l.endingId == 'echo_guardian' && !l.options.contains('tw_ask'),
+        );
+        expect(withoutAsk, isNotEmpty);
+      },
+    );
 
     test('flags stay inside their declared ranges in every playthrough', () {
       final sim = ProgressionSimulator(content)..run();

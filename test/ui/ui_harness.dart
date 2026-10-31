@@ -34,7 +34,7 @@ Future<AppServices> makeServices({
     content: contentFrom(freshRaw()),
     store: store ?? MemorySettingsStore(settings),
   );
-  services.preview.revealAll = reveal;
+  services.game.reviewMode = reveal;
   return services;
 }
 

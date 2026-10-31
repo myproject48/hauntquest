@@ -12,7 +12,7 @@ import '../../core/widgets/grain_overlay.dart';
 import '../../core/widgets/pressable_scale.dart';
 
 /// What kind of marker an object shows, so meaning never relies on color alone.
-enum HotspotKind { examine, puzzle, speak, locked }
+enum HotspotKind { examine, puzzle, speak, locked, done }
 
 /// The illustrated room with parallax depth and tappable objects.
 ///
@@ -25,15 +25,27 @@ class RoomStage extends StatefulWidget {
     required this.room,
     required this.kindOf,
     required this.onHotspot,
+    this.lookOf = _untouched,
     required this.showMarkers,
     this.interactive = true,
+    this.hudClearance = 0,
   });
+
+  /// Height (dp from the top of this widget) covered by overlaid controls
+  /// such as the status bar and the HUD buttons. Markers that would sit in
+  /// that band are moved down inside their object so they stay visible.
+  final double hudClearance;
 
   /// Width divided by height of the illustrated scene.
   static const double aspect = 0.75;
 
   final RoomDef room;
   final HotspotKind Function(HotspotDef) kindOf;
+
+  /// How each object should look given what the player has done to it.
+  final HotspotLook Function(HotspotDef) lookOf;
+
+  static HotspotLook _untouched(HotspotDef _) => HotspotLook.untouched;
   final ValueChanged<HotspotDef> onHotspot;
 
   /// Show a marker on every object.
@@ -126,7 +138,15 @@ class _RoomStageState extends State<RoomStage> with TickerProviderStateMixin {
               child: SizedBox(
                 width: stage.width,
                 height: stage.height,
-                child: ClipRect(child: _content(stage)),
+                child: ClipRect(
+                  child: _content(
+                    stage,
+                    // The stage is centered, so it may start below the top.
+                    markerTopLimit:
+                        widget.hudClearance -
+                        (box.biggest.height - stage.height) / 2,
+                  ),
+                ),
               ),
             ),
           ],
@@ -135,7 +155,7 @@ class _RoomStageState extends State<RoomStage> with TickerProviderStateMixin {
     );
   }
 
-  Widget _content(Size stage) {
+  Widget _content(Size stage, {required double markerTopLimit}) {
     Widget layer(_StageLayer l) => RepaintBoundary(
       child: CustomPaint(
         size: Size.infinite,
@@ -143,7 +163,10 @@ class _RoomStageState extends State<RoomStage> with TickerProviderStateMixin {
           art: _art,
           layer: l,
           hotspots: widget.room.hotspots,
-          time: _time,
+          looks: {for (final h in widget.room.hotspots) h.id: widget.lookOf(h)},
+          time: l == _StageLayer.back
+              ? const AlwaysStoppedAnimation(.18)
+              : _time,
           parallax: _parallax,
           stageWidth: stage.width,
         ),
@@ -181,6 +204,11 @@ class _RoomStageState extends State<RoomStage> with TickerProviderStateMixin {
             seed: widget.room.id.length,
           ),
           ExcludeSemantics(child: layer(_StageLayer.mid)),
+          // Foreground scenery sits behind the markers so they are never
+          // hidden by curtains or shelves at the edges.
+          ExcludeSemantics(
+            child: IgnorePointer(child: layer(_StageLayer.front)),
+          ),
           for (final h in widget.room.hotspots)
             _HotspotMarker(
               key: ValueKey(h.id),
@@ -189,11 +217,9 @@ class _RoomStageState extends State<RoomStage> with TickerProviderStateMixin {
               kind: widget.kindOf(h),
               showMarker: widget.showMarkers,
               interactive: widget.interactive,
+              markerTopLimit: markerTopLimit,
               onTap: () => widget.onHotspot(h),
             ),
-          ExcludeSemantics(
-            child: IgnorePointer(child: layer(_StageLayer.front)),
-          ),
           const GrainOverlay(vignette: 0.5),
         ],
       ),
@@ -208,6 +234,7 @@ class _RoomLayerPainter extends CustomPainter {
     required this.art,
     required this.layer,
     required this.hotspots,
+    required this.looks,
     required this.time,
     required this.parallax,
     required this.stageWidth,
@@ -216,6 +243,7 @@ class _RoomLayerPainter extends CustomPainter {
   final RoomArt art;
   final _StageLayer layer;
   final List<HotspotDef> hotspots;
+  final Map<String, HotspotLook> looks;
   final Animation<double> time;
   final ValueNotifier<Offset> parallax;
   final double stageWidth;
@@ -248,7 +276,13 @@ class _RoomLayerPainter extends CustomPainter {
       case _StageLayer.mid:
         art.paintMid(canvas, size, t);
         for (final h in hotspots) {
-          HotspotArt.paint(canvas, h.id, Kit.rectOf(h.area, size), t);
+          HotspotArt.paint(
+            canvas,
+            h.id,
+            Kit.rectOf(h.area, size),
+            t,
+            looks[h.id] ?? HotspotLook.untouched,
+          );
         }
       case _StageLayer.front:
         art.paintFront(canvas, size, t);
@@ -258,7 +292,12 @@ class _RoomLayerPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_RoomLayerPainter old) =>
-      old.art != art || old.layer != layer;
+      old.art != art || old.layer != layer || !_sameLooks(old.looks, looks);
+
+  static bool _sameLooks(
+    Map<String, HotspotLook> a,
+    Map<String, HotspotLook> b,
+  ) => a.length == b.length && a.entries.every((e) => b[e.key] == e.value);
 }
 
 class _HotspotMarker extends StatefulWidget {
@@ -270,6 +309,7 @@ class _HotspotMarker extends StatefulWidget {
     required this.showMarker,
     required this.interactive,
     required this.onTap,
+    this.markerTopLimit = 0,
   });
 
   final HotspotDef hotspot;
@@ -278,6 +318,9 @@ class _HotspotMarker extends StatefulWidget {
   final bool showMarker;
   final bool interactive;
   final VoidCallback onTap;
+
+  /// Stage y above which the marker would be covered by the HUD.
+  final double markerTopLimit;
 
   @override
   State<_HotspotMarker> createState() => _HotspotMarkerState();
@@ -301,6 +344,7 @@ class _HotspotMarkerState extends State<_HotspotMarker>
     HotspotKind.puzzle => Icons.extension_rounded,
     HotspotKind.speak => Icons.chat_bubble_rounded,
     HotspotKind.locked => Icons.lock_rounded,
+    HotspotKind.done => Icons.check_rounded,
   };
 
   Color get _color => switch (widget.kind) {
@@ -308,6 +352,7 @@ class _HotspotMarkerState extends State<_HotspotMarker>
     HotspotKind.puzzle => AppColors.goldLight,
     HotspotKind.speak => AppColors.ghostGreen,
     HotspotKind.locked => AppColors.fog,
+    HotspotKind.done => AppColors.fog,
   };
 
   String get _hint => switch (widget.kind) {
@@ -315,6 +360,7 @@ class _HotspotMarkerState extends State<_HotspotMarker>
     HotspotKind.puzzle => 'Double tap to look closer. This is a puzzle.',
     HotspotKind.speak => 'Double tap to speak',
     HotspotKind.locked => 'Double tap to see why it is locked',
+    HotspotKind.done => 'Double tap to look again. Nothing new here.',
   };
 
   @override
@@ -334,9 +380,19 @@ class _HotspotMarkerState extends State<_HotspotMarker>
       children: [
         if (widget.showMarker)
           Positioned(
-            top: 4,
+            // Normally the top-right corner. If the HUD covers that corner,
+            // drop the marker just below the HUD, still inside the object.
+            top: (widget.markerTopLimit + 4 - top).clamp(
+              4.0,
+              (th - _Badge.size - 4).clamp(4.0, double.infinity),
+            ),
             right: 4,
-            child: _Badge(icon: _icon, color: _color, pulse: !reduce),
+            child: _Badge(
+              icon: _icon,
+              color: _color,
+              // Only things left to discover draw the eye.
+              pulse: !reduce && widget.kind != HotspotKind.done,
+            ),
           ),
         IgnorePointer(
           child: AnimatedBuilder(
@@ -384,6 +440,8 @@ class _HotspotMarkerState extends State<_HotspotMarker>
 class _Badge extends StatefulWidget {
   const _Badge({required this.icon, required this.color, required this.pulse});
 
+  static const double size = 26;
+
   final IconData icon;
   final Color color;
   final bool pulse;
@@ -421,8 +479,8 @@ class _BadgeState extends State<_Badge> with SingleTickerProviderStateMixin {
       child: AnimatedBuilder(
         animation: _c,
         builder: (context, child) => Container(
-          width: 26,
-          height: 26,
+          width: _Badge.size,
+          height: _Badge.size,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: AppColors.midnight.withValues(alpha: 0.82),

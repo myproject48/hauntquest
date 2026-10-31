@@ -13,9 +13,8 @@ class MistPageRoute<T> extends PageRouteBuilder<T> {
         pageBuilder: (context, _, _) => builder(context),
         transitionsBuilder: (context, animation, secondary, child) {
           if (MotionPolicy.reduceOf(context)) return child;
-          final curved = CurvedAnimation(
-            parent: animation,
-            curve: AppMotion.emphasized,
+          final curved = animation.drive(
+            CurveTween(curve: AppMotion.emphasized),
           );
           return FadeTransition(
             opacity: curved,

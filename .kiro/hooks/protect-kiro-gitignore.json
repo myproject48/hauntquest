@@ -1,0 +1,16 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Keep .kiro tracked in Git",
+      "trigger": "PreToolUse",
+      "description": "Before the agent edits the root .gitignore, computes the resulting file and blocks the write (exit 2) if any rule would exclude .kiro/. All other writes pass straight through.",
+      "matcher": "^(fs_write|str_replace|fs_append)$",
+      "action": {
+        "type": "command",
+        "command": "sh tool/hooks/run.sh pre-write",
+        "timeout": 30
+      }
+    }
+  ]
+}

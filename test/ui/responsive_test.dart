@@ -49,7 +49,7 @@ void main() {
         expect(EndingScene.supported, contains(e.sceneId), reason: e.id);
       }
       for (final p in content.puzzles.where(
-        (p) => p.config['options'] != null,
+        (p) => p.config['options'] != null && p.config['variant'] == null,
       )) {
         for (final o in (p.config['options'] as List).cast<String>()) {
           expect(Sigils.supported, contains(o), reason: '${p.id} $o');
@@ -79,7 +79,7 @@ void main() {
       await bootApp(tester, services);
       await openScreen(tester, const RoomScreen());
       for (final room in content.rooms) {
-        services.preview.moveTo(room.id);
+        services.game.moveTo(room.id);
         // Several frames across the animation loop.
         for (var i = 0; i < 6; i++) {
           await tester.pump(const Duration(milliseconds: 450));
@@ -137,10 +137,12 @@ void main() {
       'settings': () => const SettingsScreen(),
       'saves': () => const SaveSlotsScreen(),
       'dialogue': () => const DialogueScreen(choiceId: 'c_echo_fate'),
-      'ending': () => const EndingScreen(endingId: 'homecoming'),
+      'ending': () => const EndingScreen(endingId: 'echo_guardian'),
       'gears puzzle': () => const PuzzleScreen(puzzleId: 'p8_gear_alignment'),
       'clock puzzle': () => const PuzzleScreen(puzzleId: 'p7_stopped_hands'),
       'cipher puzzle': () => const PuzzleScreen(puzzleId: 'p3_shelf_cipher'),
+      for (final p in content.puzzles.where((p) => p.config['variant'] != null))
+        p.title: () => PuzzleScreen(puzzleId: p.id),
     };
 
     for (final size in _sizes.entries) {
@@ -175,9 +177,7 @@ void main() {
       await bootApp(tester, services);
       await openScreen(tester, const RoomScreen());
       final description = tester.getTopLeft(
-        find.text(
-          services.preview.currentRoom.description.resolve(services.preview),
-        ),
+        find.text(services.game.currentRoom.description.resolve(services.game)),
       );
       expect(
         description.dx,
@@ -197,7 +197,7 @@ void main() {
         await bootApp(tester, services);
         await openScreen(tester, const RoomScreen());
 
-        for (final h in services.preview.currentRoom.hotspots) {
+        for (final h in services.game.currentRoom.hotspots) {
           final box = tester.getSize(find.byKey(ValueKey(h.id)));
           expect(box.width, greaterThanOrEqualTo(48), reason: h.id);
           expect(box.height, greaterThanOrEqualTo(48), reason: h.id);
@@ -252,7 +252,7 @@ void main() {
       );
       await bootApp(tester, services);
       await openScreen(tester, const RoomScreen());
-      for (final h in services.preview.currentRoom.hotspots) {
+      for (final h in services.game.currentRoom.hotspots) {
         await tester.dragUntilVisible(
           find.text(h.label),
           find.byType(SingleChildScrollView).last,

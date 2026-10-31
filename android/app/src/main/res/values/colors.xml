@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- AppColors.midnight: the game's deepest background. -->
+    <color name="manor_midnight">#050818</color>
+</resources>

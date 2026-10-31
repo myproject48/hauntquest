@@ -24,6 +24,10 @@ class ContentValidator {
   static const int maxEpilogueLine = 200;
   static const int minHotspotsPerRoom = 3;
 
+  /// Highest a hotspot may start on the 3:4 stage (fraction of its height)
+  /// so its marker clears the status bar and the HUD buttons.
+  static const double minHotspotTop = 0.12;
+
   final List<ContentIssue> _issues = [];
 
   ValidationReport validate() {
@@ -35,6 +39,7 @@ class ContentValidator {
     _checkItems();
     _checkPuzzles();
     _checkChoices();
+    _checkNarrative();
     _checkItemSupply();
 
     // Progression analysis only makes sense on structurally sound content.
@@ -93,6 +98,8 @@ class ContentValidator {
     check('ending', content.story.endings.map((e) => e.id));
     check('character', content.story.characters.map((c) => c.id));
     check('flag', content.story.flags.map((f) => f.id));
+    check('journal entry', content.story.journalEntries.map((e) => e.id));
+    check('evidence link', content.story.evidenceLinks.map((e) => e.id));
   }
 
   // ------------------------------------------------------- references
@@ -282,6 +289,16 @@ class ContentValidator {
           '$where has ${room.hotspots.length} hotspots (minimum $minHotspotsPerRoom).',
         );
       }
+      for (final h in room.hotspots) {
+        // The HUD buttons and the phone status bar cover the top of the
+        // stage; objects there would be hidden or untappable.
+        if (h.area.y < minHotspotTop) {
+          _error(
+            'hotspot_under_hud',
+            '$where: hotspot "${h.id}" starts at y=${h.area.y}, under the HUD (minimum $minHotspotTop).',
+          );
+        }
+      }
       for (var i = 0; i < room.hotspots.length; i++) {
         for (var j = i + 1; j < room.hotspots.length; j++) {
           final a = room.hotspots[i].area;
@@ -438,10 +455,10 @@ class ContentValidator {
   // ---------------------------------------------------------- puzzles
 
   void _checkPuzzles() {
-    if (content.puzzles.length < 8 || content.puzzles.length > 10) {
+    if (content.puzzles.length < 8) {
       _error(
         'wrong_puzzle_count',
-        'Expected 8 to 10 puzzles, found ${content.puzzles.length}.',
+        'Expected at least 8 puzzles, found ${content.puzzles.length}.',
       );
     }
     for (final p in content.puzzles) {
@@ -587,12 +604,37 @@ class ContentValidator {
         if (solution.toSet().length != solution.length) {
           bad('solution repeats an option.');
         }
+        if (c['variant'] == 'echo') {
+          final frequencies = c['frequencies'];
+          if (frequencies is! List ||
+              frequencies.map((v) => '$v').join(',') != solution.join(',')) {
+            bad('echo playback must match the solution frequencies.');
+          }
+        }
         if (!solution.every(options.contains)) {
           bad('solution uses an unknown option.');
         }
       case PuzzleKind.cipher:
         final text = c['cipherText'];
         final answer = c['answer'];
+        if (c['variant'] == 'symbols') {
+          final alphabet = c['substitution'];
+          if (text is! String ||
+              answer is! String ||
+              alphabet is! Map ||
+              alphabet.isEmpty ||
+              alphabet.values.any((v) => v is! String || v.length != 1) ||
+              alphabet.values.toSet().length != alphabet.length) {
+            bad('symbol cipher needs a one-to-one substitution alphabet.');
+            return;
+          }
+          final symbols = text.split(' ');
+          if (symbols.any((s) => !alphabet.containsKey(s)) ||
+              symbols.map((s) => alphabet[s]).join() != answer) {
+            bad('symbol cipher does not decode to its answer.');
+          }
+          return;
+        }
         final shift = c['shift'];
         if (text is! String || answer is! String || shift is! int) {
           bad(
@@ -681,6 +723,31 @@ class ContentValidator {
         if (!target.every((t) => t is int && t >= 0 && t < positions)) {
           bad('gear targets must be integers from 0 to ${positions - 1}.');
         }
+        if (c['variant'] == 'mirror') {
+          final source = c['source'];
+          if (positions != 2 ||
+              c['columns'] != 3 ||
+              source is! List ||
+              source.length != 9 ||
+              target.length != 9 ||
+              source.any((v) => v != 0 && v != 1)) {
+            bad('mirror needs a binary 3 by 3 source and reflection.');
+            return;
+          }
+          for (var i = 0; i < 9; i++) {
+            if (target[i] != source[(i ~/ 3) * 3 + 2 - i % 3]) {
+              bad('mirror target must reverse columns in each source row.');
+              break;
+            }
+          }
+        }
+        if (c['variant'] == 'constellation' &&
+            (positions != 4 ||
+                _strings(c['labels'])?.length != target.length)) {
+          bad(
+            'constellation needs four compass positions and a label for each disc.',
+          );
+        }
         if (target.every((t) => t == 0)) {
           bad('gears start solved (all targets are 0).');
         }
@@ -703,6 +770,75 @@ class ContentValidator {
     return buffer.toString();
   }
 
+  void _checkNarrative() {
+    final ids = content.story.journalEntries.map((e) => e.id).toSet();
+    for (final entry in content.story.journalEntries) {
+      _checkCondition(entry.unlockWhen, 'Journal "${entry.id}"');
+      _checkContextText(entry.text, maxItemDetail, 'Journal "${entry.id}"');
+      _checkLength(entry.title, maxOptionLabel, 'Journal title');
+    }
+    for (final link in content.story.evidenceLinks) {
+      _ref(
+        ids.contains(link.from),
+        'journal entry',
+        link.from,
+        'Evidence "${link.id}"',
+      );
+      _ref(
+        ids.contains(link.to),
+        'journal entry',
+        link.to,
+        'Evidence "${link.id}"',
+      );
+      if (link.from == link.to) {
+        _error(
+          'evidence_self_link',
+          'Evidence "${link.id}" connects an entry to itself.',
+        );
+      }
+      _checkCondition(link.requires, 'Evidence "${link.id}"');
+      _checkLength(link.label, maxResult, 'Evidence "${link.id}"');
+    }
+    for (final ending in content.story.endings) {
+      if (!{'release', 'seal', 'guardian'}.contains(ending.revealStyle)) {
+        _error(
+          'invalid_reveal',
+          'Ending "${ending.id}" has unknown reveal style.',
+        );
+      }
+    }
+    // Check every node, including unreferenced subgraphs. One-shot execution is
+    // also enforced by the engine, but authored continuations must be acyclic.
+    final edges = <String, Set<String>>{
+      for (final c in content.choices)
+        c.id: {
+          for (final o in c.options)
+            if (o.nextChoiceId != null) o.nextChoiceId!,
+          for (final o in c.options)
+            for (final e in o.effects)
+              if (e is StartChoice) e.id,
+        },
+    };
+    final active = <String>{};
+    final done = <String>{};
+    void visit(String id) {
+      if (done.contains(id)) return;
+      if (!active.add(id)) {
+        _error('dialogue_cycle', 'Dialogue continuation cycle includes "$id".');
+        return;
+      }
+      for (final next in edges[id] ?? <String>{}) {
+        visit(next);
+      }
+      active.remove(id);
+      done.add(id);
+    }
+
+    for (final id in edges.keys) {
+      visit(id);
+    }
+  }
+
   // ---------------------------------------------------------- choices
 
   void _checkChoices() {
@@ -721,6 +857,9 @@ class ContentValidator {
         where,
       );
       _checkCondition(c.requires, where);
+      if (c.roomId != null) {
+        _ref(content.roomById(c.roomId!) != null, 'room', c.roomId!, where);
+      }
       _checkContextText(c.prompt, maxPrompt, '$where prompt');
       if (c.options.length < 2) {
         _error('too_few_options', '$where needs at least 2 options.');
@@ -729,6 +868,25 @@ class ContentValidator {
         final ow = '$where option "${o.id}"';
         _checkCondition(o.enabledWhen, ow);
         _checkEffects(o.effects, ow);
+        if (c.id == content.story.finalChoiceId &&
+            o.effects.any((e) => e is StartChoice)) {
+          _error(
+            'ending_continues',
+            '$ow starts another scene after the final decision.',
+          );
+        }
+        if (o.nextChoiceId case final id?) {
+          _ref(content.choiceById(id) != null, 'choice', id, ow);
+          if (c.id == content.story.finalChoiceId) {
+            _error(
+              'ending_continues',
+              '$ow continues after the final decision.',
+            );
+          }
+        }
+        if (o.reaction case final reaction?) {
+          _checkContextText(reaction, maxResult, '$ow reaction');
+        }
         _checkLength(o.label, maxOptionLabel, '$ow label');
         _checkLength(o.resultText, maxResult, '$ow result');
         if (o.enabledWhen != null && (o.disabledReason ?? '').isEmpty) {

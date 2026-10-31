@@ -8,17 +8,35 @@
       "kind": "sequence",
       "mandatory": true,
       "config": {
-        "options": ["crescent", "half", "full", "waning"],
-        "solution": ["crescent", "half", "full", "waning"]
+        "options": [
+          "crescent",
+          "half",
+          "full",
+          "waning"
+        ],
+        "solution": [
+          "crescent",
+          "half",
+          "full",
+          "waning"
+        ]
       },
       "clues": [
-        { "source": "item:wrens_letter", "contains": "crescent, half, full, then waning" }
+        {
+          "source": "item:wrens_letter",
+          "contains": "crescent, half, full, then waning"
+        }
       ],
       "intro": "Four candles wait, each etched with a moon. Light them in order.",
       "successText": "The flames turn pale blue. Behind the wallpaper, a hidden door unlatches.",
       "incorrectText": "The candles gutter and go dark. That was not the order the moon rises.",
       "partialText": "The first flames hold. The next candle is not yet right.",
-      "onSolved": [{ "type": "openExit", "id": "hall_to_library" }],
+      "onSolved": [
+        {
+          "type": "openExit",
+          "id": "hall_to_library"
+        }
+      ],
       "hints": [
         "Wren's letter mentions an order. What do moons do when they rise?",
         "The letter lists the order in plain words. Read it again.",
@@ -32,14 +50,25 @@
       "title": "Wake the Caretaker",
       "kind": "useItem",
       "mandatory": true,
-      "config": { "itemId": "brass_winding_key", "hotspotId": "h_tallow" },
-      "requiresItems": ["brass_winding_key"],
+      "config": {
+        "itemId": "brass_winding_key",
+        "hotspotId": "h_tallow"
+      },
+      "requiresItems": [
+        "brass_winding_key"
+      ],
       "intro": "The porter's winding slot is the right size for a key.",
       "successText": "The key turns. Gears whirr, and two lamp-bright eyes open in the porter's face.",
       "incorrectText": "The porter does not stir. Something else must wind him.",
       "onSolved": [
-        { "type": "giveItem", "id": "tallow_lantern" },
-        { "type": "startChoice", "id": "c_tallow_welcome" }
+        {
+          "type": "giveItem",
+          "id": "tallow_lantern"
+        },
+        {
+          "type": "startChoice",
+          "id": "c_tallow_welcome"
+        }
       ],
       "hints": [
         "The porter has a winding slot in his back. Something in this hall might fit it.",
@@ -54,17 +83,30 @@
       "title": "The Whispering Shelf",
       "kind": "cipher",
       "mandatory": true,
-      "config": { "cipherText": "OLVWHQ", "answer": "LISTEN", "shift": 3 },
+      "config": {
+        "cipherText": "OLVWHQ",
+        "answer": "LISTEN",
+        "shift": 3
+      },
       "clues": [
-        { "source": "item:ottoline_journal", "contains": "three letters forward" }
+        {
+          "source": "item:ottoline_journal",
+          "contains": "three letters forward"
+        }
       ],
       "intro": "The stamped letters must hide a word. Enter what the shelf is saying.",
       "successText": "The books slide home. The shelf folds aside, revealing a passage and a torn page in a hollow.",
       "incorrectText": "The shelf stays silent. That word is not what the letters hide.",
       "partialText": "Some letters ring true. The shelf stirs but does not open.",
       "onSolved": [
-        { "type": "giveItem", "id": "torn_page_left" },
-        { "type": "openExit", "id": "library_to_workshop" }
+        {
+          "type": "giveItem",
+          "id": "torn_page_left"
+        },
+        {
+          "type": "openExit",
+          "id": "library_to_workshop"
+        }
       ],
       "hints": [
         "The letters on the spines are not random. Someone hid a word.",
@@ -79,13 +121,29 @@
       "title": "Torn Recipe",
       "kind": "combine",
       "mandatory": true,
-      "config": { "slots": ["torn_page_left", "torn_page_right"] },
-      "requiresItems": ["torn_page_left", "torn_page_right"],
-      "consumesItems": ["torn_page_left", "torn_page_right"],
+      "config": {
+        "slots": [
+          "torn_page_left",
+          "torn_page_right"
+        ]
+      },
+      "requiresItems": [
+        "torn_page_left",
+        "torn_page_right"
+      ],
+      "consumesItems": [
+        "torn_page_left",
+        "torn_page_right"
+      ],
       "intro": "Two torn halves of one recipe. Lay them on the blotter.",
       "successText": "The halves fit. The recipe is a solvent, and the blotter soaks it into a vial of silver liquid.",
       "incorrectText": "The edges do not match. These are not two halves of the same page.",
-      "onSolved": [{ "type": "giveItem", "id": "silver_solvent" }],
+      "onSolved": [
+        {
+          "type": "giveItem",
+          "id": "silver_solvent"
+        }
+      ],
       "hints": [
         "Two halves of one page exist in this room. You need both.",
         "One half was hidden in the shelf. The other lies under the hearth ash.",
@@ -99,17 +157,31 @@
       "title": "Resonance Tuner",
       "kind": "dial",
       "mandatory": true,
-      "config": { "min": 0, "max": 99, "start": 0, "target": 73 },
+      "config": {
+        "min": 0,
+        "max": 99,
+        "start": 0,
+        "target": 73
+      },
       "clues": [
-        { "source": "hotspot:w_phonograph", "contains": "Seven, then three" }
+        {
+          "source": "hotspot:w_phonograph",
+          "contains": "Seven, then three"
+        }
       ],
       "intro": "A needle waits for a number between 0 and 99.",
       "successText": "The needle locks. A hatch drops open above, a stair unrolls, and a small brass cog rolls out.",
       "incorrectText": "The needle shudders and slips. The number is wrong.",
       "partialText": "The needle almost holds. You are within a notch or two.",
       "onSolved": [
-        { "type": "giveItem", "id": "spare_cog" },
-        { "type": "openExit", "id": "workshop_to_clocktower" }
+        {
+          "type": "giveItem",
+          "id": "spare_cog"
+        },
+        {
+          "type": "openExit",
+          "id": "workshop_to_clocktower"
+        }
       ],
       "hints": [
         "The tuner needs a number. Someone already said it aloud.",
@@ -124,13 +196,25 @@
       "title": "Corroded Cabinet",
       "kind": "useItem",
       "mandatory": true,
-      "config": { "itemId": "silver_solvent", "hotspotId": "w_cabinet" },
-      "requiresItems": ["silver_solvent"],
-      "consumesItems": ["silver_solvent"],
+      "config": {
+        "itemId": "silver_solvent",
+        "hotspotId": "w_cabinet"
+      },
+      "requiresItems": [
+        "silver_solvent"
+      ],
+      "consumesItems": [
+        "silver_solvent"
+      ],
       "intro": "The lock has fused into verdigris. Only something that eats metal will free it.",
       "successText": "The solvent hisses. The lock melts away, and the door swings open on a single wax cylinder.",
       "incorrectText": "Nothing happens. This needs something that eats metal.",
-      "onSolved": [{ "type": "giveItem", "id": "wax_cylinder" }],
+      "onSolved": [
+        {
+          "type": "giveItem",
+          "id": "wax_cylinder"
+        }
+      ],
       "hints": [
         "Verdigris resists most things. Something in the library might eat it.",
         "The torn recipe pages describe a solvent. Fit them together in the library.",
@@ -144,15 +228,26 @@
       "title": "Stopped Hands",
       "kind": "clock",
       "mandatory": true,
-      "config": { "hour": 11, "minute": 40 },
+      "config": {
+        "hour": 11,
+        "minute": 40
+      },
       "clues": [
-        { "source": "item:wrens_letter", "contains": "twenty to midnight" }
+        {
+          "source": "item:wrens_letter",
+          "contains": "twenty to midnight"
+        }
       ],
       "intro": "Set the hands to the hour the clock should remember.",
       "successText": "The clock chimes once. Its case swings open to show a dark crystal in a velvet cradle.",
       "incorrectText": "The hands slide back on their own. That is not the hour.",
       "partialText": "The hour feels right, but the minutes are off.",
-      "onSolved": [{ "type": "giveItem", "id": "resonance_core" }],
+      "onSolved": [
+        {
+          "type": "giveItem",
+          "id": "resonance_core"
+        }
+      ],
       "hints": [
         "The clock stopped at a moment someone wrote down. Who?",
         "Wren's letter says when Ottoline vanished.",
@@ -166,17 +261,36 @@
       "title": "Drive Gears",
       "kind": "gears",
       "mandatory": true,
-      "config": { "positions": 4, "target": [2, 0, 3] },
-      "requiresItems": ["spare_cog"],
-      "consumesItems": ["spare_cog"],
+      "config": {
+        "positions": 4,
+        "target": [
+          2,
+          0,
+          3
+        ]
+      },
+      "requiresItems": [
+        "spare_cog"
+      ],
+      "consumesItems": [
+        "spare_cog"
+      ],
       "clues": [
-        { "source": "item:ottoline_journal", "contains": "two, nought, three" }
+        {
+          "source": "item:ottoline_journal",
+          "contains": "two, nought, three"
+        }
       ],
       "intro": "Seat the spare cog, then turn each gear to its place.",
       "successText": "The gears mesh. Far below, the vault drawbridge groans down.",
       "incorrectText": "The teeth grind and jam. The gears are not set right.",
       "partialText": "Some gears mesh cleanly. Others still grind.",
-      "onSolved": [{ "type": "openExit", "id": "clocktower_to_vault" }],
+      "onSolved": [
+        {
+          "type": "openExit",
+          "id": "clocktower_to_vault"
+        }
+      ],
       "hints": [
         "The drive needs a missing cog and the right settings.",
         "Ottoline's journal lists three numbers for the gear plate.",
@@ -191,28 +305,433 @@
       "kind": "sequence",
       "mandatory": true,
       "config": {
-        "options": ["tide", "ember", "gale", "stone"],
-        "solution": ["tide", "ember", "gale"]
+        "options": [
+          "tide",
+          "ember",
+          "gale",
+          "stone"
+        ],
+        "solution": [
+          "tide",
+          "ember",
+          "gale"
+        ]
       },
-      "requiresItems": ["resonance_core"],
-      "consumesItems": ["resonance_core"],
+      "requiresItems": [
+        "resonance_core"
+      ],
+      "consumesItems": [
+        "resonance_core"
+      ],
       "clues": [
-        { "source": "hotspot:w_phonograph", "contains": "water wakes first" },
-        { "source": "item:ottoline_journal", "contains": "after the water, the flame" },
-        { "source": "hotspot:c_logbook", "contains": "Wind always closes the circle" }
+        {
+          "source": "hotspot:w_phonograph",
+          "contains": "water wakes first"
+        },
+        {
+          "source": "item:ottoline_journal",
+          "contains": "after the water, the flame"
+        },
+        {
+          "source": "hotspot:c_logbook",
+          "contains": "Wind always closes the circle"
+        }
       ],
       "intro": "Seat the crystal, then sound the pillars in the right order. One is a decoy.",
       "successText": "The engine wakes. A voice like Ottoline's rises from the air, steady and warm.",
       "incorrectText": "The pillars clash, and the vault answers with a sour echo. Try the order again.",
       "partialText": "The first notes ring true. The engine waits for the next pillar.",
       "onSolved": [
-        { "type": "setFlag", "id": "engineRestored", "value": 1 },
-        { "type": "startChoice", "id": "c_echo_fate" }
+        {
+          "type": "setFlag",
+          "id": "engineRestored",
+          "value": 1
+        },
+        {
+          "type": "startChoice",
+          "id": "c_echo_fate"
+        }
       ],
       "hints": [
         "Three pillars must sound in order. The fourth is a decoy.",
         "The order is spread across three clues: the recording, the journal, and the keeper's logbook.",
         "Sound the pillars: tide, then ember, then gale."
+      ]
+    },
+    {
+      "id": "p10_symbol_seal",
+      "roomId": "moonlit_hall",
+      "hotspotId": "q10_symbol_seal",
+      "title": "The Symbol Seal",
+      "kind": "cipher",
+      "mandatory": true,
+      "config": {
+        "variant": "symbols",
+        "cipherText": "☽ ◆ ☽ ✶ ○",
+        "answer": "LILAC",
+        "substitution": {
+          "☽": "L",
+          "◆": "I",
+          "✶": "A",
+          "○": "C"
+        }
+      },
+      "clues": [
+        {
+          "source": "hotspot:q10_symbol_seal",
+          "contains": "A brass alphabet reads: moon (☽) = L, diamond (◆) = I, star (✶) = A, circle (○) = C. The seal bears ☽ ◆ ☽ ✶ ○. Read left to right."
+        }
+      ],
+      "intro": "Decode each symbol using the brass alphabet. Enter the five-letter flower to release a sealed memory.",
+      "incorrectText": "The seal rejects the word. Substitute one letter for each symbol, keeping both moons identical.",
+      "partialText": "Part of your arrangement agrees with the inscription. Check the remaining positions.",
+      "successText": "The seal opens on Ottoline's pressed lilac. Her note reads: 'Wren stayed to help me. He did not abandon us.'",
+      "requiresItems": [
+        "wrens_letter"
+      ],
+      "unlockWhen": {
+        "type": "puzzleSolved",
+        "id": "p1_candle_moons"
+      },
+      "hints": [
+        "The alphabet beside the seal assigns a letter to each shape.",
+        "Read left to right; the first and third symbols are identical.",
+        "Moon, diamond, moon, star, circle spells LILAC."
+      ],
+      "onSolved": [
+        {
+          "type": "setFlag",
+          "id": "p10_symbol_seal_revealed",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "id": "p11_constellation",
+      "roomId": "clocktower_chamber",
+      "hotspotId": "q11_constellation",
+      "title": "Constellation Discs",
+      "kind": "gears",
+      "mandatory": true,
+      "config": {
+        "variant": "constellation",
+        "positions": 4,
+        "target": [
+          1,
+          3,
+          2
+        ],
+        "labels": [
+          "Owl",
+          "Hare",
+          "Stag"
+        ]
+      },
+      "clues": [
+        {
+          "source": "hotspot:q11_constellation",
+          "contains": "The star chart fixes north = 0, east = 1, south = 2, west = 3. Owl watches dawn in the east; Hare watches dusk in the west; Stag faces south."
+        }
+      ],
+      "intro": "Rotate the three star discs. Match each creature to its direction on the chart; all three must align together.",
+      "incorrectText": "The stars fail to join. Use the chart directions, in Owl, Hare, Stag order.",
+      "partialText": "Part of your arrangement agrees with the inscription. Check the remaining positions.",
+      "successText": "Starlight draws Ottoline's route through the vault. She entered willingly to bring the lost voices home.",
+      "requiresItems": [
+        "ottoline_journal"
+      ],
+      "unlockWhen": {
+        "type": "puzzleSolved",
+        "id": "p7_stopped_hands"
+      },
+      "hints": [
+        "Each animal watches a direction. The chart numbers the four compass points.",
+        "Dawn is east and dusk is west. Match those directions to the numbered ring.",
+        "Set Owl to 1 (east), Hare to 3 (west), Stag to 2 (south)."
+      ],
+      "onSolved": [
+        {
+          "type": "setFlag",
+          "id": "p11_constellation_revealed",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "id": "p12_rune_gaps",
+      "roomId": "forgotten_library",
+      "hotspotId": "q12_rune_gaps",
+      "title": "The Missing Runes",
+      "kind": "sequence",
+      "mandatory": true,
+      "config": {
+        "variant": "runes",
+        "options": [
+          "I",
+          "II",
+          "III",
+          "IV",
+          "V",
+          "VI"
+        ],
+        "solution": [
+          "II",
+          "IV",
+          "VI"
+        ],
+        "pattern": "I, ?, III, ?, V, ?"
+      },
+      "clues": [
+        {
+          "source": "hotspot:q12_rune_gaps",
+          "contains": "A school tablet counts the ancient strokes: I = 1, II = 2, III = 3, IV = 4, V = 5, VI = 6. Above the lock: I, ?, III, ?, V, ?. Count upward one at a time."
+        }
+      ],
+      "intro": "Fill only the three gaps in the counting inscription, from left to right. Known runes remain fixed.",
+      "incorrectText": "The tablet dims. Fill the gaps rather than repeating the runes already carved; the count increases by one.",
+      "partialText": "Part of your arrangement agrees with the inscription. Check the remaining positions.",
+      "successText": "The tablet reveals a lesson: 'The Echo learns by repetition, as a child does. It is neither demon nor machine.'",
+      "requiresItems": [
+        "ottoline_journal"
+      ],
+      "unlockWhen": {
+        "type": "puzzleSolved",
+        "id": "p3_shelf_cipher"
+      },
+      "hints": [
+        "Three carvings are missing from a simple count.",
+        "The fixed positions are one, three, and five. Supply the intervening values.",
+        "Choose II, then IV, then VI."
+      ],
+      "onSolved": [
+        {
+          "type": "setFlag",
+          "id": "p12_rune_gaps_revealed",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "id": "p13_alchemy",
+      "roomId": "alchemist_workshop",
+      "hotspotId": "q13_alchemy",
+      "title": "Moonwater Alchemy",
+      "kind": "sequence",
+      "mandatory": true,
+      "config": {
+        "variant": "alchemy",
+        "options": [
+          "moonwater",
+          "silver_salt",
+          "ember_moss",
+          "grave_ash"
+        ],
+        "solution": [
+          "moonwater",
+          "silver_salt",
+          "ember_moss"
+        ]
+      },
+      "clues": [
+        {
+          "source": "hotspot:q13_alchemy",
+          "contains": "The bench supplies endless measures of moonwater, silver salt, ember moss and grave ash. Recipe: begin with moonwater; dissolve silver salt next; warm with ember moss last. Never add grave ash."
+        }
+      ],
+      "intro": "Add exactly three ingredients to the retort in recipe order. Supplies are on the bench; failed mixtures waste no inventory.",
+      "incorrectText": "The mixture clouds. Start with the liquid, dissolve the mineral, then add the warming plant. Grave ash spoils it.",
+      "partialText": "Part of your arrangement agrees with the inscription. Check the remaining positions.",
+      "successText": "A silver memory forms in the retort: Maul replaced the stabilizer before the accident. Ottoline's formula was sound.",
+      "requiresItems": [
+        "ottoline_journal"
+      ],
+      "unlockWhen": {
+        "type": "puzzleSolved",
+        "id": "p6_corroded_cabinet"
+      },
+      "hints": [
+        "The recipe gives an order as well as a forbidden ingredient.",
+        "Moonwater is the base. Salt must dissolve before the warming moss goes in.",
+        "Add moonwater, silver salt, then ember moss. Leave grave ash out."
+      ],
+      "onSolved": [
+        {
+          "type": "setFlag",
+          "id": "p13_alchemy_revealed",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "id": "p14_mirror",
+      "roomId": "moonlit_hall",
+      "hotspotId": "q14_mirror",
+      "title": "The Silver Mirror",
+      "kind": "gears",
+      "mandatory": true,
+      "config": {
+        "variant": "mirror",
+        "positions": 2,
+        "source": [
+          1,
+          0,
+          0,
+          0,
+          1,
+          0,
+          1,
+          1,
+          0
+        ],
+        "target": [
+          0,
+          0,
+          1,
+          0,
+          1,
+          0,
+          0,
+          1,
+          1
+        ],
+        "columns": 3
+      },
+      "clues": [
+        {
+          "source": "hotspot:q14_mirror",
+          "contains": "The silver mirror swaps left and right, never top and bottom. Copy the lit pattern as a reflection across the vertical line. Top: lit, dark, dark. Middle: dark, lit, dark. Bottom: lit, lit, dark."
+        }
+      ],
+      "intro": "Light cells on the right grid to reflect the fixed left grid. Rows stay in place; columns exchange left and right. Lit = gold, dark = empty.",
+      "incorrectText": "The reflection shatters. Reverse columns in each row, keeping top and bottom in place.",
+      "partialText": "Part of your arrangement agrees with the inscription. Check the remaining positions.",
+      "successText": "The mirror clears. Wren's reflection points at Maul's signet scratched into the damaged stabilizer.",
+      "requiresItems": [
+        "tallow_lantern"
+      ],
+      "unlockWhen": {
+        "type": "puzzleSolved",
+        "id": "p2_wake_tallow"
+      },
+      "hints": [
+        "A mirror reverses the horizontal direction.",
+        "Reflect each row separately. The center column stays where it is.",
+        "Light top-right, center, bottom-center and bottom-right. Leave all other cells dark."
+      ],
+      "onSolved": [
+        {
+          "type": "setFlag",
+          "id": "p14_mirror_revealed",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "id": "p15_evidence",
+      "roomId": "forgotten_library",
+      "hotspotId": "q15_evidence",
+      "title": "The Evidence Board",
+      "kind": "sequence",
+      "mandatory": true,
+      "config": {
+        "variant": "evidence",
+        "options": [
+          "arrival",
+          "sabotage",
+          "alarm",
+          "disappearance"
+        ],
+        "solution": [
+          "arrival",
+          "sabotage",
+          "alarm",
+          "disappearance"
+        ]
+      },
+      "clues": [
+        {
+          "source": "hotspot:q15_evidence",
+          "contains": "Four records: the visitor arrived before the stabilizer was cut. The cut triggered the alarm. Ottoline disappeared after the alarm. Arrange arrival, sabotage, alarm and disappearance from earliest to latest."
+        }
+      ],
+      "intro": "Order the four evidence cards into a single timeline. The logical links on the board determine exactly one order.",
+      "incorrectText": "The timeline contradicts a record. Arrival precedes sabotage; sabotage causes the alarm; disappearance follows it.",
+      "partialText": "Part of your arrangement agrees with the inscription. Check the remaining positions.",
+      "successText": "The completed timeline proves Maul caused the failure before Ottoline vanished. Wren's testimony is corroborated.",
+      "requiresItems": [
+        "ottoline_journal"
+      ],
+      "unlockWhen": {
+        "type": "puzzleSolved",
+        "id": "p12_rune_gaps"
+      },
+      "hints": [
+        "Follow cause and effect rather than the order the cards are displayed.",
+        "Find the event that must precede all the others. Then follow the linked records.",
+        "Arrival, sabotage, alarm, disappearance is the only consistent timeline."
+      ],
+      "onSolved": [
+        {
+          "type": "setFlag",
+          "id": "p15_evidence_revealed",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "id": "p16_echo_frequencies",
+      "roomId": "echo_vault",
+      "hotspotId": "q16_echo_frequencies",
+      "title": "The Echo Frequencies",
+      "kind": "sequence",
+      "mandatory": true,
+      "config": {
+        "variant": "echo",
+        "options": [
+          "220",
+          "330",
+          "440",
+          "550"
+        ],
+        "solution": [
+          "220",
+          "440",
+          "330"
+        ],
+        "frequencies": [
+          220,
+          440,
+          330
+        ]
+      },
+      "clues": [
+        {
+          "source": "hotspot:q16_echo_frequencies",
+          "contains": "The tuning plate marks 220 Hz as low, 330 Hz as middle, 440 Hz as high, and 550 Hz as the decoy. The remembered call is low, high, middle. Repeat those three pulses; never sound the decoy."
+        }
+      ],
+      "intro": "Replay the remembered call, then enter its three frequency pulses. The written low/high/middle clue is always available; sound is not required.",
+      "incorrectText": "The echo breaks apart. The call rises from low to high, then settles in the middle. The highest available key is a decoy.",
+      "partialText": "Part of your arrangement agrees with the inscription. Check the remaining positions.",
+      "successText": "The matching call releases Ottoline's last message: 'The Echo remembers kindness. Ask what it wants; never command it to become me.'",
+      "requiresItems": [
+        "ottoline_journal"
+      ],
+      "unlockWhen": {
+        "type": "puzzleSolved",
+        "id": "p8_gear_alignment"
+      },
+      "hints": [
+        "Read the tuning plate to translate pitch names into numbers.",
+        "The call is low, high, middle; 550 Hz is excluded.",
+        "Press 220 Hz, then 440 Hz, then 330 Hz."
+      ],
+      "onSolved": [
+        {
+          "type": "setFlag",
+          "id": "p16_echo_frequencies_revealed",
+          "value": 1
+        }
       ]
     }
   ]
