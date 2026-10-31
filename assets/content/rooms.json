@@ -1,0 +1,716 @@
+{
+  "rooms": [
+    {
+      "id": "moonlit_hall",
+      "name": "Moonlit Entrance Hall",
+      "ambientCue": "hall_wind",
+      "sceneId": "moonlit_hall",
+      "mood": "moonCyan",
+      "description": {
+        "base": "Moonlight spills through a cracked skylight onto black-and-white tiles. Dust drifts like slow snow.",
+        "variants": [
+          {
+            "when": {
+              "type": "puzzleSolved",
+              "id": "p1_candle_moons"
+            },
+            "text": "Four pale blue flames burn on the candelabra. A seam in the wall has opened onto a dark corridor."
+          }
+        ]
+      },
+      "exits": [
+        {
+          "id": "hall_to_library",
+          "toRoomId": "forgotten_library",
+          "label": "Hidden door",
+          "initiallyOpen": false,
+          "lockedText": "A seam in the wall holds fast. The candelabra seems to be watching it."
+        }
+      ],
+      "hotspots": [
+        {
+          "id": "h_front_door",
+          "label": "Front door",
+          "semanticLabel": "Front door, sealed",
+          "area": {
+            "x": 0.5,
+            "y": 0.26,
+            "w": 0.22,
+            "h": 0.48
+          },
+          "description": "The door you came through has sealed itself. Frost traces the keyhole. Whatever lives here wants you to stay and listen."
+        },
+        {
+          "id": "h_portrait",
+          "label": "Portrait of Ottoline",
+          "semanticLabel": "Portrait of a woman with ink-stained fingers",
+          "area": {
+            "x": 0.04,
+            "y": 0.12,
+            "w": 0.22,
+            "h": 0.3
+          },
+          "description": "A woman with ink-stained fingers smiles from the frame. The plaque reads: 'Listen twice.' A brass key hangs from the corner of the frame.",
+          "repeatText": "Ottoline's painted eyes look amused. 'Listen twice,' says the plaque.",
+          "onExamine": [
+            {
+              "type": "giveItem",
+              "id": "brass_winding_key"
+            }
+          ]
+        },
+        {
+          "id": "h_candelabra",
+          "label": "Silver candelabra",
+          "semanticLabel": "Silver candelabra with four unlit candles",
+          "area": {
+            "x": 0.76,
+            "y": 0.46,
+            "w": 0.2,
+            "h": 0.28
+          },
+          "puzzleId": "p1_candle_moons",
+          "description": "Four cold candles stand in a silver branch, each etched with a moon: crescent, half, full, waning.",
+          "repeatText": {
+            "base": "Four cold candles wait in the silver branch, each etched with a moon.",
+            "variants": [
+              {
+                "when": {
+                  "type": "puzzleSolved",
+                  "id": "p1_candle_moons"
+                },
+                "text": "The four candles burn with a pale blue flame that casts no heat."
+              }
+            ]
+          }
+        },
+        {
+          "id": "h_tallow",
+          "label": "Dormant automaton",
+          "semanticLabel": "Tall clockwork porter standing motionless",
+          "area": {
+            "x": 0.29,
+            "y": 0.3,
+            "w": 0.17,
+            "h": 0.44
+          },
+          "puzzleId": "p2_wake_tallow",
+          "description": "A tall clockwork porter in a faded coat stands motionless. A winding slot gleams between his shoulder blades.",
+          "repeatText": {
+            "base": "The clockwork porter stands motionless. A winding slot gleams in his back.",
+            "variants": [
+              {
+                "when": {
+                  "type": "all",
+                  "of": [
+                    {
+                      "type": "puzzleSolved",
+                      "id": "p2_wake_tallow"
+                    },
+                    {
+                      "type": "flagAtLeast",
+                      "id": "tallowHurt",
+                      "value": 1
+                    }
+                  ]
+                },
+                "text": "Tallow stands at attention, a little stiff. 'I was told to hurry, sir. I am hurrying.'"
+              },
+              {
+                "when": {
+                  "type": "puzzleSolved",
+                  "id": "p2_wake_tallow"
+                },
+                "text": "Tallow ticks softly. 'The library lies beyond the candlelit door. Mind the dark.'"
+              }
+            ]
+          }
+        },
+        {
+          "id": "h_guest_table",
+          "label": "Hall table",
+          "semanticLabel": "Hall table with a guest ledger",
+          "area": {
+            "x": 0.05,
+            "y": 0.6,
+            "w": 0.19,
+            "h": 0.16
+          },
+          "description": "A guest ledger lies open. The last entry is in your own handwriting: 'Arrived. The manor is listening.' You do not remember writing it.",
+          "repeatText": "The ledger's last line has not changed. The ink looks wet."
+        }
+      ]
+    },
+    {
+      "id": "forgotten_library",
+      "name": "Forgotten Library",
+      "ambientCue": "library_pages",
+      "sceneId": "forgotten_library",
+      "mood": "antiqueGold",
+      "description": {
+        "base": "Shelves climb into darkness. Somewhere above you, pages turn by themselves.",
+        "variants": [
+          {
+            "when": {
+              "type": "hasItem",
+              "id": "tallow_lantern"
+            },
+            "text": "Lantern light shows shelves of warped leather and a reading desk under a green glass lamp."
+          }
+        ]
+      },
+      "exits": [
+        {
+          "id": "library_to_hall",
+          "toRoomId": "moonlit_hall",
+          "label": "Back to the hall",
+          "initiallyOpen": true
+        },
+        {
+          "id": "library_to_workshop",
+          "toRoomId": "alchemist_workshop",
+          "label": "Shelf passage",
+          "initiallyOpen": false,
+          "lockedText": "Only books and solid wall. One shelf seems to be whispering a word."
+        }
+      ],
+      "hotspots": [
+        {
+          "id": "l_desk",
+          "label": "Reading desk",
+          "semanticLabel": "Reading desk under a green lamp",
+          "area": {
+            "x": 0.05,
+            "y": 0.6,
+            "w": 0.34,
+            "h": 0.26
+          },
+          "requires": {
+            "type": "hasItem",
+            "id": "tallow_lantern"
+          },
+          "lockedText": "It is too dark to see more than the outlines of shelves. Perhaps the caretaker has a light.",
+          "description": "Ottoline's journal lies open under the lamp. The last entry is underlined twice. You take it.",
+          "repeatText": "A clean ring on the desk shows where the journal sat.",
+          "onExamine": [
+            {
+              "type": "giveItem",
+              "id": "ottoline_journal"
+            },
+            {
+              "type": "addFlag",
+              "id": "truthFragments",
+              "amount": 1
+            }
+          ]
+        },
+        {
+          "id": "l_shelf",
+          "label": "Whispering shelf",
+          "semanticLabel": "Bookshelf with letters stamped on the spines",
+          "area": {
+            "x": 0.52,
+            "y": 0.12,
+            "w": 0.42,
+            "h": 0.46
+          },
+          "requires": {
+            "type": "hasItem",
+            "id": "tallow_lantern"
+          },
+          "lockedText": "It is too dark to see more than the outlines of shelves. Perhaps the caretaker has a light.",
+          "puzzleId": "p3_shelf_cipher",
+          "description": "Six books are pulled halfway out. Their spines are stamped O, L, V, W, H, Q. A brass plate says: 'Step back, and the shelf will speak.'",
+          "repeatText": {
+            "base": "Six books stand pulled out, stamped O, L, V, W, H, Q.",
+            "variants": [
+              {
+                "when": {
+                  "type": "puzzleSolved",
+                  "id": "p3_shelf_cipher"
+                },
+                "text": "The shelf has folded aside, leaving a narrow passage that smells of copper and rain."
+              }
+            ]
+          }
+        },
+        {
+          "id": "l_hearth",
+          "label": "Cold hearth",
+          "semanticLabel": "Cold stone hearth full of ash",
+          "area": {
+            "x": 0.04,
+            "y": 0.24,
+            "w": 0.3,
+            "h": 0.3
+          },
+          "requires": {
+            "type": "hasItem",
+            "id": "tallow_lantern"
+          },
+          "lockedText": "It is too dark to see more than the outlines of shelves. Perhaps the caretaker has a light.",
+          "description": "Under the ash you find half a page, the edge singed. Chemical symbols march across it. You take it.",
+          "repeatText": "Only cold ash remains. Whoever burned the page missed one half.",
+          "onExamine": [
+            {
+              "type": "giveItem",
+              "id": "torn_page_right"
+            }
+          ]
+        },
+        {
+          "id": "l_blotter",
+          "label": "Ink blotter",
+          "semanticLabel": "Ink blotter with space for two torn pages",
+          "area": {
+            "x": 0.42,
+            "y": 0.66,
+            "w": 0.2,
+            "h": 0.14
+          },
+          "requires": {
+            "type": "hasItem",
+            "id": "tallow_lantern"
+          },
+          "lockedText": "It is too dark to see more than the outlines of shelves. Perhaps the caretaker has a light.",
+          "puzzleId": "p4_torn_pages",
+          "description": "A blotter large enough to lay out a letter. Two pale rectangles on it are the size of torn pages.",
+          "repeatText": {
+            "base": "A blotter with two pale rectangles the size of torn pages.",
+            "variants": [
+              {
+                "when": {
+                  "type": "puzzleSolved",
+                  "id": "p4_torn_pages"
+                },
+                "text": "The blotter is stained with a finished recipe. You have already mixed what it describes."
+              }
+            ]
+          }
+        },
+        {
+          "id": "l_ledger",
+          "label": "Investor's ledger",
+          "semanticLabel": "Ledger stamped E. Maul",
+          "area": {
+            "x": 0.7,
+            "y": 0.66,
+            "w": 0.22,
+            "h": 0.16
+          },
+          "requires": {
+            "type": "hasItem",
+            "id": "tallow_lantern"
+          },
+          "lockedText": "It is too dark to see more than the outlines of shelves. Perhaps the caretaker has a light.",
+          "description": "A ledger stamped E. MAUL, INVESTOR. Past the figures is a note: 'Once the Echo can be bottled, it can be sold. O. is a sentimental fool.'",
+          "repeatText": "Maul's note is cold and neat. The figures beside it are not.",
+          "onExamine": [
+            {
+              "type": "addFlag",
+              "id": "truthFragments",
+              "amount": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "alchemist_workshop",
+      "name": "Alchemist's Workshop",
+      "ambientCue": "workshop_drip",
+      "sceneId": "alchemist_workshop",
+      "mood": "ghostGreen",
+      "description": "Copper pipes snake across the ceiling above benches crowded with flasks. The air tastes of metal and sugar.",
+      "exits": [
+        {
+          "id": "workshop_to_library",
+          "toRoomId": "forgotten_library",
+          "label": "Back to the library",
+          "initiallyOpen": true
+        },
+        {
+          "id": "workshop_to_clocktower",
+          "toRoomId": "clocktower_chamber",
+          "label": "Spiral stair",
+          "initiallyOpen": false,
+          "lockedText": "A hatch in the ceiling is sealed. The brass tuner on the wall looks like it controls it."
+        }
+      ],
+      "hotspots": [
+        {
+          "id": "w_bench",
+          "label": "Crowded bench",
+          "semanticLabel": "Workbench of glowing flasks",
+          "area": {
+            "x": 0.04,
+            "y": 0.56,
+            "w": 0.38,
+            "h": 0.3
+          },
+          "description": "Flasks of green and amber liquid hum faintly. One label reads: 'Never speak near this one.'",
+          "repeatText": "The flasks hum a little louder when you whisper. You stop whispering."
+        },
+        {
+          "id": "w_cabinet",
+          "label": "Corroded cabinet",
+          "semanticLabel": "Cabinet sealed by green corrosion",
+          "area": {
+            "x": 0.6,
+            "y": 0.12,
+            "w": 0.3,
+            "h": 0.42
+          },
+          "puzzleId": "p6_corroded_cabinet",
+          "description": "A cabinet sealed by green corrosion. The lock has fused into a lump of verdigris.",
+          "repeatText": {
+            "base": "The lock is a lump of verdigris. Nothing you carry would cut it.",
+            "variants": [
+              {
+                "when": {
+                  "type": "puzzleSolved",
+                  "id": "p6_corroded_cabinet"
+                },
+                "text": "The cabinet hangs open. The lock has dissolved into a green puddle."
+              }
+            ]
+          },
+          "wrongItemText": "That does not touch the corrosion. Whatever opens this must eat metal."
+        },
+        {
+          "id": "w_phonograph",
+          "label": "Brass phonograph",
+          "semanticLabel": "Brass phonograph with an empty spindle",
+          "area": {
+            "x": 0.46,
+            "y": 0.62,
+            "w": 0.22,
+            "h": 0.24
+          },
+          "description": "A phonograph with a horn shaped like a lily. Its spindle is bare.",
+          "repeatText": {
+            "base": "The phonograph waits, its spindle bare.",
+            "variants": [
+              {
+                "when": {
+                  "type": "flagAtLeast",
+                  "id": "cylinderPlayed",
+                  "value": 1
+                },
+                "text": "The cylinder is still turning. Ottoline's voice hangs in the room like warm breath."
+              }
+            ]
+          },
+          "useRules": [
+            {
+              "itemId": "wax_cylinder",
+              "successText": "Ottoline's voice crackles: 'Day ninety. The Echo answers only when the tuning is right. Seven, then three. And remember: water wakes first. If I do not return, Wren, keep Edric away from the core.'",
+              "effects": [
+                {
+                  "type": "setFlag",
+                  "id": "cylinderPlayed",
+                  "value": 1
+                },
+                {
+                  "type": "addFlag",
+                  "id": "truthFragments",
+                  "amount": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "w_tuner",
+          "label": "Resonance tuner",
+          "semanticLabel": "Brass tuning dial with a numbered scale",
+          "area": {
+            "x": 0.06,
+            "y": 0.1,
+            "w": 0.26,
+            "h": 0.24
+          },
+          "requires": {
+            "type": "flagAtLeast",
+            "id": "cylinderPlayed",
+            "value": 1
+          },
+          "lockedText": "The dial is dead. It needs a signal to tune to, and you have none yet.",
+          "puzzleId": "p5_resonance_tuner",
+          "description": "A brass dial with a scale from 0 to 99. A needle trembles, waiting for a number.",
+          "repeatText": {
+            "base": "The needle trembles, waiting for a number.",
+            "variants": [
+              {
+                "when": {
+                  "type": "puzzleSolved",
+                  "id": "p5_resonance_tuner"
+                },
+                "text": "The needle rests at the tuned number. A hatch above has dropped open."
+              }
+            ]
+          }
+        },
+        {
+          "id": "w_horn",
+          "label": "Speaking horn",
+          "semanticLabel": "Copper speaking horn bolted to the wall",
+          "area": {
+            "x": 0.36,
+            "y": 0.14,
+            "w": 0.18,
+            "h": 0.22
+          },
+          "choiceId": "c_echo_whisper",
+          "description": "A copper horn bolted to the wall. When you lean close, something leans close back.",
+          "repeatText": {
+            "base": "The horn is quiet. It is listening.",
+            "variants": [
+              {
+                "when": {
+                  "type": "flagAtLeast",
+                  "id": "echoAngered",
+                  "value": 1
+                },
+                "text": "The horn rattles faintly in its bracket. It has not forgotten your tone."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "clocktower_chamber",
+      "name": "Clocktower Chamber",
+      "ambientCue": "clock_ticks",
+      "sceneId": "clocktower_chamber",
+      "mood": "antiqueGold",
+      "description": "Great gears turn without a sound behind walls of glass. The moon is a huge pale face in the clock window.",
+      "exits": [
+        {
+          "id": "clocktower_to_workshop",
+          "toRoomId": "alchemist_workshop",
+          "label": "Down the spiral stair",
+          "initiallyOpen": true
+        },
+        {
+          "id": "clocktower_to_vault",
+          "toRoomId": "echo_vault",
+          "label": "Vault drawbridge",
+          "initiallyOpen": false,
+          "lockedText": "The drawbridge to the vault is raised. Its drive shaft is missing a gear."
+        }
+      ],
+      "hotspots": [
+        {
+          "id": "c_clockface",
+          "label": "Great clock face",
+          "semanticLabel": "Great clock with drooping hands and a setting lever",
+          "area": {
+            "x": 0.26,
+            "y": 0.12,
+            "w": 0.48,
+            "h": 0.38
+          },
+          "puzzleId": "p7_stopped_hands",
+          "description": "The great clock's hands droop at the wrong hour. A brass lever lets you set them.",
+          "repeatText": {
+            "base": "The hands droop at the wrong hour, waiting for you to set them.",
+            "variants": [
+              {
+                "when": {
+                  "type": "puzzleSolved",
+                  "id": "p7_stopped_hands"
+                },
+                "text": "The clock case stands open. The hands now show the hour Ottoline vanished."
+              }
+            ]
+          }
+        },
+        {
+          "id": "c_gears",
+          "label": "Drive gear frame",
+          "semanticLabel": "Frame holding three drive gears, one empty socket",
+          "area": {
+            "x": 0.05,
+            "y": 0.54,
+            "w": 0.32,
+            "h": 0.3
+          },
+          "puzzleId": "p8_gear_alignment",
+          "description": "Three drive gears sit in a frame, one socket empty. Each gear can be turned a notch at a time.",
+          "repeatText": {
+            "base": "Three drive gears wait in a frame, one socket empty.",
+            "variants": [
+              {
+                "when": {
+                  "type": "puzzleSolved",
+                  "id": "p8_gear_alignment"
+                },
+                "text": "The gears mesh smoothly. Far below, a drawbridge groans down."
+              }
+            ]
+          },
+          "wrongItemText": "That does not fit the empty socket. The missing piece is a small cog."
+        },
+        {
+          "id": "c_logbook",
+          "label": "Keeper's logbook",
+          "semanticLabel": "Logbook from inside the clock case",
+          "area": {
+            "x": 0.6,
+            "y": 0.6,
+            "w": 0.22,
+            "h": 0.2
+          },
+          "requires": {
+            "type": "puzzleSolved",
+            "id": "p7_stopped_hands"
+          },
+          "lockedText": "A logbook is visible through the clock case glass. The case will not open yet.",
+          "description": "The last line is in Ottoline's hand: 'Edric pulled the core and left the engine cold. I will tune it by voice. Wind always closes the circle. O.V., 11:40.'",
+          "repeatText": "Ottoline's last line is steady. Her handwriting was not afraid.",
+          "onExamine": [
+            {
+              "type": "addFlag",
+              "id": "truthFragments",
+              "amount": 1
+            }
+          ]
+        },
+        {
+          "id": "c_tube",
+          "label": "Brass speaking tube",
+          "semanticLabel": "Brass speaking tube with a faint voice inside",
+          "area": {
+            "x": 0.84,
+            "y": 0.2,
+            "w": 0.12,
+            "h": 0.34
+          },
+          "requires": {
+            "type": "puzzleSolved",
+            "id": "p7_stopped_hands"
+          },
+          "lockedText": "The tube is silent. Something is waiting for you to find what the clock hides.",
+          "choiceId": "c_maul_bargain",
+          "description": "A brass tube curls from the wall. A smooth voice slides out of it as you approach.",
+          "repeatText": {
+            "base": "The tube is silent. It is thinking.",
+            "variants": [
+              {
+                "when": {
+                  "type": "flagAtLeast",
+                  "id": "acceptedBargain",
+                  "value": 1
+                },
+                "text": "The tube whispers your own promise back to you."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "echo_vault",
+      "name": "The Echo Vault",
+      "ambientCue": "vault_hum",
+      "sceneId": "echo_vault",
+      "mood": "violetMist",
+      "description": {
+        "base": "A round chamber of mirrored stone. Every footstep returns a heartbeat late. At its center stands a dormant engine of rings and pillars.",
+        "variants": [
+          {
+            "when": {
+              "type": "flagAtLeast",
+              "id": "engineRestored",
+              "value": 1
+            },
+            "text": "The engine hums. Every wall holds a faint reflection of someone who is not there."
+          }
+        ]
+      },
+      "exits": [
+        {
+          "id": "vault_to_clocktower",
+          "toRoomId": "clocktower_chamber",
+          "label": "Back across the drawbridge",
+          "initiallyOpen": true
+        }
+      ],
+      "hotspots": [
+        {
+          "id": "v_engine",
+          "label": "Resonance Engine",
+          "semanticLabel": "Resonance Engine with four pillars: tide, ember, gale and stone",
+          "area": {
+            "x": 0.26,
+            "y": 0.4,
+            "w": 0.48,
+            "h": 0.42
+          },
+          "puzzleId": "p9_resonance_engine",
+          "description": "Four pillars rise from a ring of copper: tide, ember, gale and stone. An empty cradle waits for a crystal.",
+          "repeatText": {
+            "base": "Four pillars wait around an empty cradle.",
+            "variants": [
+              {
+                "when": {
+                  "type": "puzzleSolved",
+                  "id": "p9_resonance_engine"
+                },
+                "text": "The engine hums, steady and patient. It is waiting for an answer."
+              }
+            ]
+          },
+          "wrongItemText": "The cradle is shaped for a crystal, and this is not one."
+        },
+        {
+          "id": "v_echo",
+          "label": "The Echo",
+          "semanticLabel": "A faint shimmer in the air at the center of the vault",
+          "area": {
+            "x": 0.4,
+            "y": 0.12,
+            "w": 0.2,
+            "h": 0.22
+          },
+          "requires": {
+            "type": "flagAtLeast",
+            "id": "engineRestored",
+            "value": 1
+          },
+          "lockedText": "Something shimmers above the engine, too faint to hear. The engine is still cold.",
+          "choiceId": "c_echo_fate",
+          "description": "The shimmer gathers into a voice that sounds like Ottoline's. It waits for you.",
+          "repeatText": "The Echo waits. It is patient in the way of things that have already lost."
+        },
+        {
+          "id": "v_mirrors",
+          "label": "Mirrored wall",
+          "semanticLabel": "Mirrored stone wall that reflects late",
+          "area": {
+            "x": 0.02,
+            "y": 0.16,
+            "w": 0.2,
+            "h": 0.56
+          },
+          "description": {
+            "base": "Your reflection lifts its hand a moment after you do. Behind it, someone smaller in a long coat watches.",
+            "variants": [
+              {
+                "when": {
+                  "type": "flagAtLeast",
+                  "id": "maulPressed",
+                  "value": 1
+                },
+                "text": "Your reflection lifts its hand late. Behind it a tall figure in a fine coat watches, then looks away."
+              }
+            ]
+          },
+          "repeatText": "The reflection waits a heartbeat to copy you. The figure behind it does not copy anything."
+        }
+      ]
+    }
+  ]
+}

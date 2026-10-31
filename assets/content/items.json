@@ -1,0 +1,82 @@
+{
+  "items": [
+    {
+      "id": "wrens_letter",
+      "name": "Wren's Letter",
+      "iconId": "letter",
+      "description": "A creased letter that smells of rain and machine oil.",
+      "detail": "Dear fixer of strange things, Ottoline vanished at twenty to midnight, and the manor has not been quiet since. I cannot go back. The Echo remembers kindness and cruelty alike. Please finish what she began. Light the moons in the order they rise: crescent, half, full, then waning. Wren"
+    },
+    {
+      "id": "brass_winding_key",
+      "name": "Brass Winding Key",
+      "iconId": "key",
+      "description": "Warm to the touch, as if someone just let go of it.",
+      "detail": "The bow is stamped with a single letter: T. It was made to fit a slot no lock should have."
+    },
+    {
+      "id": "tallow_lantern",
+      "name": "Tallow's Lantern",
+      "iconId": "lantern",
+      "description": {
+        "base": "A shuttered lantern with a steady blue flame.",
+        "variants": [
+          {
+            "when": { "type": "flagAtLeast", "id": "tallowHurt", "value": 1 },
+            "text": "A shuttered lantern. Its flame burns a little low, as if Tallow is still sulking."
+          }
+        ]
+      },
+      "detail": "The flame does not flicker, even in a draught. It gives light but no warmth, like a memory of a fire."
+    },
+    {
+      "id": "ottoline_journal",
+      "name": "Ottoline's Journal",
+      "iconId": "journal",
+      "description": "Ink-stained pages in a quick, cheerful hand.",
+      "detail": "I hide my notes by stepping three letters forward. The engine wants three pillars: after the water, the flame. Gear plate: two, nought, three. And if the Echo ever speaks in my voice, answer kindly. It only repeats what it is given."
+    },
+    {
+      "id": "torn_page_left",
+      "name": "Torn Page (Left)",
+      "iconId": "page",
+      "description": "Half a recipe, the ink bloomed with damp.",
+      "detail": "Silver solvent: three parts moon-water, one part... The rest of the line is torn away."
+    },
+    {
+      "id": "torn_page_right",
+      "name": "Torn Page (Right)",
+      "iconId": "page",
+      "description": "The singed half of a recipe.",
+      "detail": "...salt of the vault, stirred counter-clockwise until it sings. Do not breathe the steam."
+    },
+    {
+      "id": "silver_solvent",
+      "name": "Vial of Silver Solvent",
+      "iconId": "vial",
+      "description": "A vial of liquid that gleams like melted moonlight.",
+      "detail": "It hums faintly when you tilt it. Verdigris and rust would not survive a single drop."
+    },
+    {
+      "id": "wax_cylinder",
+      "name": "Wax Cylinder",
+      "iconId": "cylinder",
+      "description": "A recording cylinder labeled 'Day 90, for Wren'.",
+      "detail": "A thumbprint is pressed into the wax beside the label. Whoever made this was in a hurry, and happy."
+    },
+    {
+      "id": "spare_cog",
+      "name": "Spare Cog",
+      "iconId": "cog",
+      "description": "A small brass cog with teeth worn to a shine.",
+      "detail": "One side is engraved: 'Drive 3. Do not lose.' Someone lost it anyway."
+    },
+    {
+      "id": "resonance_core",
+      "name": "Resonance Core",
+      "iconId": "crystal",
+      "description": "A dark crystal that hums when you speak near it.",
+      "detail": "Say something softly and the crystal repeats it, a heartbeat late. It is the heart of the Resonance Engine."
+    }
+  ]
+}

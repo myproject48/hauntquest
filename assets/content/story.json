@@ -1,0 +1,103 @@
+{
+  "title": "The Whispering Manor",
+  "tagline": "Some voices never leave.",
+  "premise": "A letter from a frightened apprentice calls you to Vask Manor, where the inventor Ottoline Vask vanished while chasing a phenomenon called the Echo.",
+  "startRoomId": "moonlit_hall",
+  "startItems": ["wrens_letter"],
+  "finalChoiceId": "c_echo_fate",
+  "introLines": [
+    "The letter arrived on a night without wind. It asked for one thing: finish what Ottoline Vask began.",
+    "Vask Manor waits on the hill. The gate opens before you knock.",
+    "Somewhere inside, a voice repeats your footsteps a heartbeat late."
+  ],
+  "characters": [
+    {
+      "id": "tallow",
+      "name": "Tallow",
+      "role": "Clockwork caretaker",
+      "voice": "Courteous and dry. Careful, old-fashioned sentences.",
+      "accent": "moonCyan"
+    },
+    {
+      "id": "ottoline",
+      "name": "Ottoline Vask",
+      "role": "Inventor of the Resonance Engine",
+      "voice": "Brisk, curious and warm. Teases herself in her notes.",
+      "accent": "antiqueGold"
+    },
+    {
+      "id": "wren",
+      "name": "Wren Dabney",
+      "role": "Apprentice who sent the letter",
+      "voice": "Anxious and honest. Short, breathless lines.",
+      "accent": "ghostGreen"
+    },
+    {
+      "id": "maul",
+      "name": "Edric Maul",
+      "role": "Investor who sabotaged the engine",
+      "voice": "Silky and patient. Every kindness has a price.",
+      "accent": "violetMist"
+    },
+    {
+      "id": "echo",
+      "name": "The Echo",
+      "role": "A resonance that remembers",
+      "voice": "Repeats the last words it hears, bent a little each time.",
+      "accent": "moonCyan"
+    }
+  ],
+  "flags": [
+    { "id": "truthFragments", "min": 0, "max": 5, "initial": 0 },
+    { "id": "mercy", "min": 0, "max": 3, "initial": 0 },
+    { "id": "acceptedBargain", "min": 0, "max": 1, "initial": 0 },
+    { "id": "fate", "min": 0, "max": 3, "initial": 0 },
+    { "id": "cylinderPlayed", "min": 0, "max": 1, "initial": 0 },
+    { "id": "engineRestored", "min": 0, "max": 1, "initial": 0 },
+    { "id": "tallowHurt", "min": 0, "max": 1, "initial": 0 },
+    { "id": "echoAngered", "min": 0, "max": 1, "initial": 0 },
+    { "id": "maulPressed", "min": 0, "max": 1, "initial": 0 }
+  ],
+  "endings": [
+    {
+      "id": "quiet_dawn",
+      "title": "A Quiet Dawn",
+      "sceneId": "ending_quiet_dawn",
+      "musicCue": "ending_rest",
+      "epilogue": [
+        "You lower the last ring. One by one, the voices in the vault fall silent.",
+        "Ottoline's laugh is the final sound, warm and unhurried. Then, nothing.",
+        "At sunrise Tallow winds his own key and sweeps the hall. The manor is merely old now."
+      ]
+    },
+    {
+      "id": "homecoming",
+      "title": "The Homecoming",
+      "sceneId": "ending_homecoming",
+      "musicCue": "ending_return",
+      "epilogue": [
+        "You call her name into the engine, and the Echo answers with a heartbeat.",
+        "Ottoline steps out of the mirrored dark, ink on her fingers, a year of silence in her eyes.",
+        "The Echo shrinks to a whisper in the walls, content to be a friend.",
+        "Tallow offers her a lantern. 'Welcome home, madam. The library is dark.'"
+      ]
+    },
+    {
+      "id": "keepers_chair",
+      "title": "The Keeper's Chair",
+      "sceneId": "ending_keepers_chair",
+      "musicCue": "ending_bound",
+      "epilogue": [
+        "You bind the Echo as Maul instructed. Every voice it ever swallowed bows to your own.",
+        "The manor's doors open for you and close for everyone else.",
+        "In the vault, a chair of stone waits. Somewhere, Ottoline whispers your words back to you, bent.",
+        "You are not alone anymore. You never will be again."
+      ]
+    }
+  ],
+  "endingRules": [
+    { "when": { "type": "flagEquals", "id": "fate", "value": 3 }, "endingId": "keepers_chair" },
+    { "when": { "type": "flagEquals", "id": "fate", "value": 2 }, "endingId": "homecoming" },
+    { "when": { "type": "always" }, "endingId": "quiet_dawn" }
+  ]
+}

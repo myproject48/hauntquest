@@ -1,0 +1,219 @@
+{
+  "puzzles": [
+    {
+      "id": "p1_candle_moons",
+      "roomId": "moonlit_hall",
+      "hotspotId": "h_candelabra",
+      "title": "Candle Moons",
+      "kind": "sequence",
+      "mandatory": true,
+      "config": {
+        "options": ["crescent", "half", "full", "waning"],
+        "solution": ["crescent", "half", "full", "waning"]
+      },
+      "clues": [
+        { "source": "item:wrens_letter", "contains": "crescent, half, full, then waning" }
+      ],
+      "intro": "Four candles wait, each etched with a moon. Light them in order.",
+      "successText": "The flames turn pale blue. Behind the wallpaper, a hidden door unlatches.",
+      "incorrectText": "The candles gutter and go dark. That was not the order the moon rises.",
+      "partialText": "The first flames hold. The next candle is not yet right.",
+      "onSolved": [{ "type": "openExit", "id": "hall_to_library" }],
+      "hints": [
+        "Wren's letter mentions an order. What do moons do when they rise?",
+        "The letter lists the order in plain words. Read it again.",
+        "Light the candles: crescent, half, full, then waning."
+      ]
+    },
+    {
+      "id": "p2_wake_tallow",
+      "roomId": "moonlit_hall",
+      "hotspotId": "h_tallow",
+      "title": "Wake the Caretaker",
+      "kind": "useItem",
+      "mandatory": true,
+      "config": { "itemId": "brass_winding_key", "hotspotId": "h_tallow" },
+      "requiresItems": ["brass_winding_key"],
+      "intro": "The porter's winding slot is the right size for a key.",
+      "successText": "The key turns. Gears whirr, and two lamp-bright eyes open in the porter's face.",
+      "incorrectText": "The porter does not stir. Something else must wind him.",
+      "onSolved": [
+        { "type": "giveItem", "id": "tallow_lantern" },
+        { "type": "startChoice", "id": "c_tallow_welcome" }
+      ],
+      "hints": [
+        "The porter has a winding slot in his back. Something in this hall might fit it.",
+        "Look closely at the portrait of Ottoline. A key hangs from its frame.",
+        "Take the brass key from the portrait, then use it on the porter."
+      ]
+    },
+    {
+      "id": "p3_shelf_cipher",
+      "roomId": "forgotten_library",
+      "hotspotId": "l_shelf",
+      "title": "The Whispering Shelf",
+      "kind": "cipher",
+      "mandatory": true,
+      "config": { "cipherText": "OLVWHQ", "answer": "LISTEN", "shift": 3 },
+      "clues": [
+        { "source": "item:ottoline_journal", "contains": "three letters forward" }
+      ],
+      "intro": "The stamped letters must hide a word. Enter what the shelf is saying.",
+      "successText": "The books slide home. The shelf folds aside, revealing a passage and a torn page in a hollow.",
+      "incorrectText": "The shelf stays silent. That word is not what the letters hide.",
+      "partialText": "Some letters ring true. The shelf stirs but does not open.",
+      "onSolved": [
+        { "type": "giveItem", "id": "torn_page_left" },
+        { "type": "openExit", "id": "library_to_workshop" }
+      ],
+      "hints": [
+        "The letters on the spines are not random. Someone hid a word.",
+        "Ottoline's journal says how she hides her notes: by stepping letters.",
+        "Step each letter back three places. O becomes L, and the rest follows."
+      ]
+    },
+    {
+      "id": "p4_torn_pages",
+      "roomId": "forgotten_library",
+      "hotspotId": "l_blotter",
+      "title": "Torn Recipe",
+      "kind": "combine",
+      "mandatory": true,
+      "config": { "slots": ["torn_page_left", "torn_page_right"] },
+      "requiresItems": ["torn_page_left", "torn_page_right"],
+      "consumesItems": ["torn_page_left", "torn_page_right"],
+      "intro": "Two torn halves of one recipe. Lay them on the blotter.",
+      "successText": "The halves fit. The recipe is a solvent, and the blotter soaks it into a vial of silver liquid.",
+      "incorrectText": "The edges do not match. These are not two halves of the same page.",
+      "onSolved": [{ "type": "giveItem", "id": "silver_solvent" }],
+      "hints": [
+        "Two halves of one page exist in this room. You need both.",
+        "One half was hidden in the shelf. The other lies under the hearth ash.",
+        "Bring both torn pages to the ink blotter and fit them together."
+      ]
+    },
+    {
+      "id": "p5_resonance_tuner",
+      "roomId": "alchemist_workshop",
+      "hotspotId": "w_tuner",
+      "title": "Resonance Tuner",
+      "kind": "dial",
+      "mandatory": true,
+      "config": { "min": 0, "max": 99, "start": 0, "target": 73 },
+      "clues": [
+        { "source": "hotspot:w_phonograph", "contains": "Seven, then three" }
+      ],
+      "intro": "A needle waits for a number between 0 and 99.",
+      "successText": "The needle locks. A hatch drops open above, a stair unrolls, and a small brass cog rolls out.",
+      "incorrectText": "The needle shudders and slips. The number is wrong.",
+      "partialText": "The needle almost holds. You are within a notch or two.",
+      "onSolved": [
+        { "type": "giveItem", "id": "spare_cog" },
+        { "type": "openExit", "id": "workshop_to_clocktower" }
+      ],
+      "hints": [
+        "The tuner needs a number. Someone already said it aloud.",
+        "Play the wax cylinder on the phonograph and listen to Ottoline's numbers.",
+        "Ottoline says 'Seven, then three.' Set the dial to 73."
+      ]
+    },
+    {
+      "id": "p6_corroded_cabinet",
+      "roomId": "alchemist_workshop",
+      "hotspotId": "w_cabinet",
+      "title": "Corroded Cabinet",
+      "kind": "useItem",
+      "mandatory": true,
+      "config": { "itemId": "silver_solvent", "hotspotId": "w_cabinet" },
+      "requiresItems": ["silver_solvent"],
+      "consumesItems": ["silver_solvent"],
+      "intro": "The lock has fused into verdigris. Only something that eats metal will free it.",
+      "successText": "The solvent hisses. The lock melts away, and the door swings open on a single wax cylinder.",
+      "incorrectText": "Nothing happens. This needs something that eats metal.",
+      "onSolved": [{ "type": "giveItem", "id": "wax_cylinder" }],
+      "hints": [
+        "Verdigris resists most things. Something in the library might eat it.",
+        "The torn recipe pages describe a solvent. Fit them together in the library.",
+        "Use the vial of silver solvent on the corroded cabinet."
+      ]
+    },
+    {
+      "id": "p7_stopped_hands",
+      "roomId": "clocktower_chamber",
+      "hotspotId": "c_clockface",
+      "title": "Stopped Hands",
+      "kind": "clock",
+      "mandatory": true,
+      "config": { "hour": 11, "minute": 40 },
+      "clues": [
+        { "source": "item:wrens_letter", "contains": "twenty to midnight" }
+      ],
+      "intro": "Set the hands to the hour the clock should remember.",
+      "successText": "The clock chimes once. Its case swings open to show a dark crystal in a velvet cradle.",
+      "incorrectText": "The hands slide back on their own. That is not the hour.",
+      "partialText": "The hour feels right, but the minutes are off.",
+      "onSolved": [{ "type": "giveItem", "id": "resonance_core" }],
+      "hints": [
+        "The clock stopped at a moment someone wrote down. Who?",
+        "Wren's letter says when Ottoline vanished.",
+        "Set the clock to 11:40, which is twenty to midnight."
+      ]
+    },
+    {
+      "id": "p8_gear_alignment",
+      "roomId": "clocktower_chamber",
+      "hotspotId": "c_gears",
+      "title": "Drive Gears",
+      "kind": "gears",
+      "mandatory": true,
+      "config": { "positions": 4, "target": [2, 0, 3] },
+      "requiresItems": ["spare_cog"],
+      "consumesItems": ["spare_cog"],
+      "clues": [
+        { "source": "item:ottoline_journal", "contains": "two, nought, three" }
+      ],
+      "intro": "Seat the spare cog, then turn each gear to its place.",
+      "successText": "The gears mesh. Far below, the vault drawbridge groans down.",
+      "incorrectText": "The teeth grind and jam. The gears are not set right.",
+      "partialText": "Some gears mesh cleanly. Others still grind.",
+      "onSolved": [{ "type": "openExit", "id": "clocktower_to_vault" }],
+      "hints": [
+        "The drive needs a missing cog and the right settings.",
+        "Ottoline's journal lists three numbers for the gear plate.",
+        "Turn the gears two notches, zero notches, and three notches, in order."
+      ]
+    },
+    {
+      "id": "p9_resonance_engine",
+      "roomId": "echo_vault",
+      "hotspotId": "v_engine",
+      "title": "The Resonance Engine",
+      "kind": "sequence",
+      "mandatory": true,
+      "config": {
+        "options": ["tide", "ember", "gale", "stone"],
+        "solution": ["tide", "ember", "gale"]
+      },
+      "requiresItems": ["resonance_core"],
+      "consumesItems": ["resonance_core"],
+      "clues": [
+        { "source": "hotspot:w_phonograph", "contains": "water wakes first" },
+        { "source": "item:ottoline_journal", "contains": "after the water, the flame" },
+        { "source": "hotspot:c_logbook", "contains": "Wind always closes the circle" }
+      ],
+      "intro": "Seat the crystal, then sound the pillars in the right order. One is a decoy.",
+      "successText": "The engine wakes. A voice like Ottoline's rises from the air, steady and warm.",
+      "incorrectText": "The pillars clash, and the vault answers with a sour echo. Try the order again.",
+      "partialText": "The first notes ring true. The engine waits for the next pillar.",
+      "onSolved": [
+        { "type": "setFlag", "id": "engineRestored", "value": 1 },
+        { "type": "startChoice", "id": "c_echo_fate" }
+      ],
+      "hints": [
+        "Three pillars must sound in order. The fourth is a decoy.",
+        "The order is spread across three clues: the recording, the journal, and the keeper's logbook.",
+        "Sound the pillars: tide, then ember, then gale."
+      ]
+    }
+  ]
+}

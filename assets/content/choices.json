@@ -1,0 +1,114 @@
+{
+  "choices": [
+    {
+      "id": "c_tallow_welcome",
+      "speakerId": "tallow",
+      "prompt": "Tallow's eyes flicker awake. 'Good evening. I am Tallow, caretaker. It has been four hundred and twelve days since anyone wound me.'",
+      "options": [
+        {
+          "id": "tw_kind",
+          "label": "Thank him warmly.",
+          "resultText": "'Most kind. A manor is less lonely when someone thanks it.'",
+          "effects": [{ "type": "addFlag", "id": "mercy", "amount": 1 }]
+        },
+        {
+          "id": "tw_ask",
+          "label": "Ask what happened to Ottoline.",
+          "resultText": "'She went into the vault to speak with the Echo. She did not come out. Her voice, however, never entirely left.'",
+          "effects": [{ "type": "addFlag", "id": "truthFragments", "amount": 1 }]
+        },
+        {
+          "id": "tw_brisk",
+          "label": "Tell him to hurry.",
+          "resultText": "'As you wish, sir. The library is through the candlelit door. Take my lantern.'",
+          "effects": [{ "type": "setFlag", "id": "tallowHurt", "value": 1 }]
+        }
+      ]
+    },
+    {
+      "id": "c_echo_whisper",
+      "speakerId": "echo",
+      "prompt": "A voice leans out of the horn, bent like a reflection: 'Who... who... who is listening?'",
+      "options": [
+        {
+          "id": "ew_gentle",
+          "label": "'A friend. I'm listening.'",
+          "resultText": "'Friend... friend... Ottoline said that word too.' The flasks stop humming, as if relieved.",
+          "effects": [{ "type": "addFlag", "id": "mercy", "amount": 1 }]
+        },
+        {
+          "id": "ew_demand",
+          "label": "'Show yourself.'",
+          "resultText": "'Show... show... shatter.' The flasks tremble on the bench.",
+          "effects": [{ "type": "setFlag", "id": "echoAngered", "value": 1 }]
+        },
+        {
+          "id": "ew_silent",
+          "label": "Say nothing.",
+          "resultText": "The voice waits, then sighs your own breath back at you."
+        }
+      ]
+    },
+    {
+      "id": "c_maul_bargain",
+      "speakerId": "maul",
+      "prompt": "'You found the core. Clever. I am Edric Maul. I only wish to bottle what Ottoline wasted. Promise to claim the Echo, and I will teach you how.'",
+      "options": [
+        {
+          "id": "mb_accept",
+          "label": "Accept his bargain.",
+          "resultText": "'Wise. When the engine hums, choose to claim it. I shall be listening.'",
+          "effects": [{ "type": "setFlag", "id": "acceptedBargain", "value": 1 }]
+        },
+        {
+          "id": "mb_refuse",
+          "label": "Refuse.",
+          "resultText": "'Sentimental, like her. Pity.' The tube goes cold.",
+          "effects": [{ "type": "addFlag", "id": "mercy", "amount": 1 }]
+        },
+        {
+          "id": "mb_press",
+          "label": "Ask what he did to the engine.",
+          "resultText": "'Only what was necessary,' he says, and the tube falls silent. You do not believe him.",
+          "effects": [{ "type": "setFlag", "id": "maulPressed", "value": 1 }]
+        }
+      ]
+    },
+    {
+      "id": "c_echo_fate",
+      "speakerId": "echo",
+      "prompt": "The engine hums. The Echo gathers into one warm voice, Ottoline's. 'I can rest, or be called home, or you can keep what I am. Choose with care. I will hear it either way.'",
+      "options": [
+        {
+          "id": "ef_release",
+          "label": "Let the Echo rest.",
+          "resultText": "You lower the final ring. The voices fall quiet, one by one, like candles at dawn.",
+          "effects": [{ "type": "setFlag", "id": "fate", "value": 1 }]
+        },
+        {
+          "id": "ef_home",
+          "label": "Call Ottoline home.",
+          "resultText": "You speak her name. The Echo takes a long breath, and answers with a heartbeat.",
+          "enabledWhen": {
+            "type": "all",
+            "of": [
+              { "type": "flagAtLeast", "id": "truthFragments", "value": 4 },
+              { "type": "flagAtLeast", "id": "mercy", "value": 2 },
+              { "type": "flagEquals", "id": "acceptedBargain", "value": 0 }
+            ]
+          },
+          "disabledReason": "The Echo will not trust a stranger. Learn more of Ottoline's story and show kindness first.",
+          "effects": [{ "type": "setFlag", "id": "fate", "value": 2 }]
+        },
+        {
+          "id": "ef_claim",
+          "label": "Claim the Echo.",
+          "resultText": "You speak the words Maul taught you. Every voice in the vault turns to listen.",
+          "enabledWhen": { "type": "flagEquals", "id": "acceptedBargain", "value": 1 },
+          "disabledReason": "You know no way to bind the Echo. Someone might teach you, for a price.",
+          "effects": [{ "type": "setFlag", "id": "fate", "value": 3 }]
+        }
+      ]
+    }
+  ]
+}
