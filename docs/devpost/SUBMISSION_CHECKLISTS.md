@@ -46,13 +46,13 @@ chosen accessible test build. A Play Store listing is not claimed by this packag
 ## YouTube demonstration
 
 - [x] [Detailed 2:55 screenplay](DEMO_SCREENPLAY.md) prepared.
-- [ ] Record actual Android gameplay and actual Kiro project evidence.
-- [ ] Record English narration; review English captions against the app's real behavior.
-- [ ] Disclose gameplay excerpts and the actual device/emulator type.
-- [ ] Clearly identify the Guide as offline/rule-based and Kiro as development assistance.
-- [ ] Keep only original artwork/audio and captions; remove external logos and unrelated UI.
-- [ ] Confirm no private paths, credentials, email, notifications or account details are visible.
-- [ ] Verify the exported duration is below three minutes, including the final fade.
+- [x] Record actual Android gameplay and actual Kiro project evidence (instrumented emulator capture).
+- [x] Prepare English on-screen narration and SRT captions; this edition has no spoken voice-over.
+- [x] Disclose gameplay excerpts and the actual device/emulator type.
+- [x] Clearly identify the Guide as offline/rule-based and Kiro as development assistance.
+- [x] Keep only original artwork/audio and captions; remove external logos and unrelated UI.
+- [x] Confirm no private paths, credentials, email, notifications or account details are visible.
+- [x] Verify the exported duration is below three minutes, including the final fade.
 - [ ] Upload the reviewed export to YouTube and make it publicly visible.
 - [ ] Check the video from a signed-out browser and paste its real URL into Devpost.
 

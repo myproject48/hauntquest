@@ -81,7 +81,7 @@ passing test suite.
   screenshots, usage metrics or a Kiro-only authorship claim for every source line.
 - Runtime AI is not enabled. The Whispering Guide uses authored local rules;
   its optional provider interface cannot change authoritative game state.
-- Source publication, a demo video and Devpost submission remain owner actions.
+- Source publication, video approval/upload and Devpost submission remain owner actions.
 
 ## Reproduce checks
 

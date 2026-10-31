@@ -29,7 +29,7 @@ The APK was rehashed for this package and matches the release report:
 - “AI-powered gameplay,” live AI chat, generated dialogue, model-based puzzle
   validation or API-driven endings. The title **HauntQuest AI** is a project name;
   the installed Guide remains offline and rule-based.
-- A published final repository, hosted APK, live site, recorded/uploaded demo or
+- A published final repository, hosted APK, live site, publicly uploaded demo or
   submitted Devpost form. Their real links remain pending.
 - Measured player adoption, retention, completion times, productivity gains,
   award eligibility, contest acceptance, guaranteed FPS or physical-device certification.
@@ -47,3 +47,10 @@ a draft. Retain full terminal/source footage for any test result shown in the vi
 
 Review all personal/team statements with the entrant. The copy describes the
 project's design and implementation without inventing personal background stories.
+
+## Local video now prepared
+
+A 175-second caption-led MP4 has been rendered from actual instrumented Android
+gameplay and actual Kiro IDE captures. [VIDEO_DELIVERY.md](VIDEO_DELIVERY.md) records
+its hash, source method and successful media checks. It uses edited original game
+audio and English captions, with no spoken voice-over. Public upload remains pending.

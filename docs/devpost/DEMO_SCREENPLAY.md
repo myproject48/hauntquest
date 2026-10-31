@@ -2,8 +2,8 @@
 
 **Project:** HauntQuest AI · **Category:** Costume Contest  
 **Target duration:** **175 seconds**, including titles and final fade. Hard export
-limit: below 180 seconds. This document is a recording plan; no footage or uploaded
-video is claimed to exist.
+limit: below 180 seconds. This document retains the recording plan. A local caption-led render is
+documented in [VIDEO_DELIVERY.md](VIDEO_DELIVERY.md); no public upload is claimed.
 
 ## Production setup
 

@@ -1,7 +1,8 @@
 # Release validation
 
 Prepared November 1, 2026. This is a local evaluation release; no public repository,
-APK host, video, store submission or Devpost entry is claimed.
+APK host, uploaded video, store submission or Devpost entry is claimed.
+A later local video render is documented in [VIDEO_DELIVERY.md](devpost/VIDEO_DELIVERY.md).
 
 ## Verified checks
 
@@ -52,7 +53,7 @@ hidden by default; no `HQ_REVIEW_TOOLS=true` define is supplied.
 - Real-device sustained FPS/memory, Android 7 minimum-device run, TalkBack,
   headphone/interruption behavior, iOS hardware and additional native platforms.
 - Manual cold-process restart and extended human puzzle playtesting.
-- Actual demo video, eligibility/ownership review and Devpost submission with real links.
+- Owner review/upload of the local demo video, eligibility/ownership review and Devpost submission with real links.
 
 No guaranteed mid-range-device frame rate, public release URL, contest acceptance,
 remote AI capability or live website is asserted.

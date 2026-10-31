@@ -27,7 +27,7 @@ Pacific Time; judging ends January 29, 2027. Confirm current dates before handof
 | --- | --- | --- |
 | Final public GitHub URL | Source, MIT license, notices, `.kiro` and English docs | Owner-approved publication of the final revision; signed-out verification; actual URL in the form |
 | Working application/test-build URL | Verified local Android release APK and checksum | Approved hosting/download; signed-out installation check; actual URL in the form |
-| Public YouTube demo URL | 2:55 screenplay only | Actual recording, export, public upload and verified URL |
+| Public YouTube demo URL | Local 2:55 captioned MP4 and screenplay | Owner review, public upload and verified URL |
 | Completed submission form | Project/category/copy/testing/Kiro text prepared | Owner's entrant fields, final review and manual submission |
 | Entrant attestations | Repository history and original-source/license records | Owner confirmation of eligibility, dates, ownership, permissions and disclosures |
 
