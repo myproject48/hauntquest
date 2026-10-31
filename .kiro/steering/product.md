@@ -28,13 +28,13 @@ Progress is saved automatically. Hints are always available and never punish the
 
 - Five rooms: Moonlit Entrance Hall, Forgotten Library, Alchemist's Workshop, Clocktower Chamber, The Echo Vault.
 - Voices: Tallow (clockwork caretaker), Ottoline Vask (inventor, recordings), Wren Dabney (apprentice, letter), Edric Maul (investor who sabotaged the engine), the Echo.
-- Nine puzzles (P1-P9), ten items, and four dialogue choices that set persistent story flags.
-- Three endings: A Quiet Dawn (release), The Homecoming (call Ottoline home, earned by truth and mercy), The Keeper's Chair (claim the Echo, after Maul's bargain). "Release" is always available, so the game can always be finished.
+- Sixteen puzzles (P1-P16), ten items, and seven dialogue nodes that set persistent story flags.
+- Three endings: Release the Echo, Seal the Echo, and Become the Echo's Guardian (earned through evidence and compassionate decisions). "Release" is always available, so the game can always be finished.
 - Content is data: `assets/content/*.json`, validated by `ContentValidator`. Dependency map: `docs/PROGRESSION_GRAPH.md`.
 
 ## Optional AI
 
-AI is an optional enhancement that may rephrase hints or add flavor lines. The game must be fully playable and complete without it, offline, and with an authored deterministic fallback for every AI feature. AI never changes game state, solves puzzles, or selects endings.
+The shipped Whispering Guide is rule-based and offline. An optional provider-neutral selection interface exists; no remote AI provider or generated prose is enabled. The game must be fully playable and complete without it, offline, and with an authored deterministic fallback for every AI feature. AI never changes game state, solves puzzles, or selects endings.
 
 ## Hackathon Focus: Kiroween 2026, Costume Contest
 
@@ -44,10 +44,16 @@ AI is an optional enhancement that may rephrase hints or add flavor lines. The g
 - Submission and player-facing text are in English.
 - A complete, playable, demo-ready vertical slice takes priority over breadth. See the milestone in the spec's `tasks.md`.
 
-## Current Status (keep this section truthful)
+## Current Status (November 1, 2026)
 
-- Done: project foundation, the Kiro spec, the narrative content with validation, pure puzzle evaluators, and the full game interface (splash, menu, save slots, intro, room exploration, inventory, puzzles, dialogue, journal and evidence board, settings, endings, credits) with original code-drawn art. Display and accessibility settings persist.
-- Done (engine): a pure-Dart `GameEngine` with immutable `GameState` runs every action (move, examine, collect, use item, puzzle, conversation, ending). The whole story is playable from start to all three endings in one session. The Entrance Hall and Library are verified end to end on an Android emulator.
-- Not done: saving to the device (progress lasts while the app is open), audio, and AI. Do not describe these as existing until implemented.
+- Complete offline engine, 16 puzzles, seven dialogue nodes and three attainable endings.
+- Versioned device autosave/recovery, persistent settings, original synthesized audio,
+  contextual offline Guide, accessible UI and motion-aware ending reveals implemented.
+- Android full-game and preference-reload integration tests run on an emulator;
+  release APK and final test evidence are in `docs/RELEASE_VALIDATION.md`.
+- One autosaved journey only. No remote AI, manual/cloud save slots or additional languages.
+- Physical-device profiling, TalkBack, broader platform certification, public hosting,
+  signing ownership, demo video and contest submission remain separate release steps.
 
-Source of truth for scope: `.kiro/specs/hauntquest-ai-game/` (requirements.md, design.md, tasks.md).
+Current release source of truth: `README.md`, `docs/ARCHITECTURE.md` and executable
+content/tests. Original design history remains in `.kiro/specs/hauntquest-ai-game/`.

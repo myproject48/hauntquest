@@ -1,9 +1,11 @@
 // Renders the original, code-drawn HauntQuest launcher icon (moonlit manor
-// tower) into android/app/src/main/res. Not part of the test suite; run it
+// tower) for Android, iOS, macOS, Windows and Web. Not part of the test suite; run it
 // only to regenerate the icons:
 //
 //   flutter test tool/icon/generate_launcher_icon_test.dart
+import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 
@@ -139,11 +141,14 @@ Future<void> render(
 }) async {
   final rec = ui.PictureRecorder();
   paintIcon(Canvas(rec), size, background: background, inset: inset);
-  final img = await rec.endRecording().toImage(size.round(), size.round());
+  final picture = rec.endRecording();
+  final img = await picture.toImage(size.round(), size.round());
   final png = await img.toByteData(format: ui.ImageByteFormat.png);
   File(path)
     ..createSync(recursive: true)
     ..writeAsBytesSync(png!.buffer.asUint8List());
+  img.dispose();
+  picture.dispose();
 }
 
 void main() {
@@ -167,6 +172,43 @@ void main() {
         inset: 0.2,
       );
     }
-    await render('/tmp/hq_qa/icon_preview.png', 512);
+    for (final platform in ['ios', 'macos']) {
+      final dir = '$platform/Runner/Assets.xcassets/AppIcon.appiconset';
+      final contents = jsonDecode(
+        File('$dir/Contents.json').readAsStringSync(),
+      ) as Map<String, dynamic>;
+      final rendered = <String>{};
+      for (final entry in contents['images'] as List) {
+        final filename = entry['filename'] as String;
+        if (!rendered.add(filename)) continue;
+        final points = double.parse((entry['size'] as String).split('x').first);
+        final scale = double.parse(
+          (entry['scale'] as String).replaceAll('x', ''),
+        );
+        await render('$dir/$filename', points * scale);
+      }
+    }
+    await render('web/favicon.png', 32);
+    for (final size in [192, 512]) {
+      await render('web/icons/Icon-$size.png', size.toDouble());
+      await render(
+        'web/icons/Icon-maskable-$size.png',
+        size.toDouble(),
+        inset: .2,
+      );
+    }
+    // Windows accepts a PNG-compressed ICO entry (256 is encoded as 0).
+    const pngPath = 'build/icon/app_icon.png';
+    await render(pngPath, 256);
+    final png = File(pngPath).readAsBytesSync();
+    final header = ByteData(22)
+      ..setUint16(2, 1, Endian.little)
+      ..setUint16(4, 1, Endian.little)
+      ..setUint16(10, 1, Endian.little)
+      ..setUint16(12, 32, Endian.little)
+      ..setUint32(14, png.length, Endian.little)
+      ..setUint32(18, 22, Endian.little);
+    File('windows/runner/resources/app_icon.ico')
+        .writeAsBytesSync([...header.buffer.asUint8List(), ...png]);
   });
 }

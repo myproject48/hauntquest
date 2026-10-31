@@ -1,11 +1,11 @@
 {
-    "name": "hauntquest",
-    "short_name": "hauntquest",
+    "name": "HauntQuest AI",
+    "short_name": "HauntQuest AI",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#050818",
+    "theme_color": "#050818",
+    "description": "An offline dark-fantasy mystery adventure in five haunted rooms.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

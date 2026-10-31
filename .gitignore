@@ -48,3 +48,15 @@ app.*.map.json
 .widget_preview/
 
 # Note: .kiro/ (specs, steering, hooks) is intentionally NOT ignored.
+
+# Private configuration and distributables (attach builds to releases instead).
+.env
+.env.*
+!.env.example
+*.jks
+*.keystore
+key.properties
+*.apk
+*.aab
+*.idsig
+__pycache__/

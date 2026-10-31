@@ -5,7 +5,7 @@
 - Flutter 3.47.7 (stable), Dart 3.13.5. `pubspec.yaml` SDK constraint: `^3.13.5`.
 - Package name: `hauntquest` (imports use `package:hauntquest/...`). The app display title is "HauntQuest AI".
 - Lints: `package:flutter_lints/flutter.yaml` via `analysis_options.yaml`.
-- Current dependencies: `flutter`, `cupertino_icons`, `shared_preferences` (settings); dev: `flutter_test`, `flutter_lints`.
+- Current dependencies: `flutter`, `cupertino_icons`, `shared_preferences` (progress/settings), `audioplayers`; dev: `flutter_test`, `integration_test`, `flutter_lints`.
 
 ## Platform Support
 
@@ -29,7 +29,7 @@
 - Add a package only when it removes real risk or large effort. Before adding: check pub.dev for compatibility with Dart 3.13 / Flutter 3.47, publisher verification, recent releases, and license.
 - Pin to the tested version with a caret and record it in `docs/LICENSES_AND_ASSETS.md` (package, version, license, source).
 - Do not add packages for navigation, state management, serialization, or fonts.
-- Planned (not yet added), in order of need: `audioplayers` (audio, only if compatible, else a null audio service), `http` (optional AI only). `integration_test` comes from the SDK.
+- Local audio uses `audioplayers`; integration tests use the Flutter SDK. No remote AI HTTP provider is configured or required.
 - Flag unusual or typosquat-like package names to the user before installing.
 
 ## State Management
@@ -47,14 +47,13 @@
 ## Persistence
 
 - Settings already persist through `SettingsStore` / `PrefsSettingsStore` (`lib/app/settings_controller.dart`); save failures are surfaced in Settings, not swallowed.
-- Planned for game saves: `shared_preferences` storing JSON strings, with a checksum, a backup key, `schemaVersion`, and migration functions. Atomic-style write: copy valid primary to backup, then write the new primary.
-- Game saves, settings, and meta progress (endings seen) use separate keys. Settings must survive new adventures and save deletion.
+- Implemented game saves: `PrefsGameStore` and `SaveCodec` store complete schema-v2 snapshots through alternating checksummed preference slots and a commit pointer. Validate before writing/restoring; migrate supported v1 saves; protect future versions.
+- Game saves and settings use separate keys; the earned ending is part of the journey. Settings must survive new adventures and save deletion.
 - Saves never contain personal data, device ids, or API keys.
-- Not yet implemented.
 
 ## Content
 
-- Story, rooms, items, puzzles, hints, and endings are JSON assets under `assets/content/` (planned), validated at load. Puzzle solutions live in data, not widget code.
+- Story, rooms, items, puzzles, hints, and endings are JSON assets under `assets/content/`, validated at load. Puzzle solutions live in data, not widget code.
 
 ## Testing Strategy
 
@@ -63,7 +62,7 @@
 - Widget tests: key flows, semantics labels, 48 dp targets, text scale up to 200%, widths around 360 / 700 / 1100 dp, reduced motion.
 - Integration tests: scripted playthroughs (slice first, then the three endings) offline.
 - Tests mirror `lib/` under `test/`. Use fakes injected through `AppScope`, never real network, audio, or timers that leak.
-- Existing (101 tests): content and validator tests in `test/content/`, puzzle evaluator tests in `test/domain/`, and UI tests in `test/ui/`. The UI tests cover every navigation path, full-motion rendering of every room, ending and puzzle, layouts at 320 to 1280 dp wide with 100% and 200% text, Flutter's tap-target and label guidelines, and palette contrast. `test/ui/ui_harness.dart` boots the real app with real content and an in-memory settings store.
+- Current tests (see `docs/RELEASE_VALIDATION.md` for counts): content and validator tests in `test/content/`, puzzle evaluator tests in `test/domain/`, and UI tests in `test/ui/`. The UI tests cover every navigation path, full-motion rendering of every room, ending and puzzle, layouts at 320 to 1280 dp wide with 100% and 200% text, Flutter's tap-target and label guidelines, and palette contrast. `test/ui/ui_harness.dart` boots the real app with real content and an in-memory settings store.
 - Widget tests render text with a placeholder font. To review visuals, load real fonts with `FontLoader` and capture the render view to PNG in a temporary test.
 - Regenerate the dependency map after content changes: `dart run tool/generate_progression_graph.dart` (exits non-zero if validation fails).
 - Content rule: any change to `assets/content/*.json` must keep `ContentValidator` at zero errors and zero warnings.
@@ -82,7 +81,7 @@ Do not run long-lived dev servers from agent tool calls; tell the user to run th
 
 ## Secrets and Configuration
 
-- No secrets in the repo. AI endpoint/key come from `--dart-define` or user entry in Settings, stored only in the settings store.
+- No secrets in the repo or Flutter client. No AI provider is shipped. Future model credentials belong only in a backend proxy, never client defines or settings. Private Android signing configuration remains ignored.
 
 ## Game Engine Rules
 

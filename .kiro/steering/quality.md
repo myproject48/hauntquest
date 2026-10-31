@@ -34,13 +34,11 @@ These rules apply to every task and every change.
 - Semantics labels and 48 dp targets are present on new interactive elements.
 - Colors come from `AppColors`; text styles from the theme.
 
-## Known Gaps (update as work progresses)
+## Release checks and remaining limits (November 1, 2026)
 
-- Progress lives in memory only (`GameController`). Closing the app starts over; the app says so (room panel chip, Continue screen, menu).
-- "Continue" resumes the in-memory journey; the device save slots are honestly empty.
-- Settings > Review tools (reveal everything, preview endings) is a review aid, not gameplay. It snapshots and restores the real journey. Remove or hide it before release.
-- There is no audio; the Settings "Sound" section says so instead of showing dead sliders.
-- The content is validated but not playtested by a human. Clue wording and puzzle difficulty need real play on a device.
-- Verified on an Android emulator (API 37) via `integration_test/hall_and_library_test.dart`. Not yet run on a physical Android phone. A Flutter Web release build succeeds.
-- Slice scope needs a decision: the story chains through all five rooms (tasks.md 17.0).
-- Android build and device testing have not been run (no device connected so far).
+- Device progress/settings, corruption recovery, original audio and all 16 puzzles are implemented.
+- Continue resumes the single autosaved journey; no inert manual slots are shown.
+- Review tools are hidden by default in release; never enable `HQ_REVIEW_TOOLS` for submission.
+- Android emulator full-journey and preference-reload tests pass. See `docs/RELEASE_VALIDATION.md` for final commands/counts and artifact metadata.
+- Physical-device FPS, TalkBack, real hardware audio interruptions/routing and broad platform certification remain unverified.
+- No remote AI, cloud saves or extra languages are shipped. Public hosting, release signing ownership, video and submission require owner action.

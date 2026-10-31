@@ -4,6 +4,10 @@ This document records which advanced Kiro features this project actually uses, h
 
 Environment: Kiro IDE 1.4.62 on macOS, Flutter 3.47.7, Dart 3.13.5. Checked on October 31, 2026.
 
+> Historical development record (October 31, 2026). Current release results and
+> remaining limits are recorded in [RELEASE_VALIDATION.md](RELEASE_VALIDATION.md).
+> Findings below describe that review snapshot; they are not a new release audit.
+
 Related: hooks and steering are documented in [KIRO_WORKFLOW.md](KIRO_WORKFLOW.md). The spec lives in `.kiro/specs/hauntquest-ai-game/`.
 
 ## Summary
@@ -21,7 +25,7 @@ Related: hooks and steering are documented in [KIRO_WORKFLOW.md](KIRO_WORKFLOW.m
 
 ### Configuration
 
-- File: `.kiro/agents/game-quality-agent.md`, committed with the rest of `.kiro/`.
+- File: `.kiro/agents/game-quality-agent.md`, included with the rest of `.kiro/`.
 - Created with Kiro's built-in `custom-agent-creator` agent, not written by hand. The format was checked against the IDE first: a Markdown file in `.kiro/agents/<id>.md` with YAML frontmatter.
 - Frontmatter:
 

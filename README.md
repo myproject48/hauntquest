@@ -1,239 +1,232 @@
 # HauntQuest AI
 
-An original dark-fantasy mystery adventure game built with Flutter, created for
-the Kiroween 2026 hackathon (Costume Contest category) using Kiro IDE.
+**An offline dark-fantasy mystery adventure for Android.** Explore the Whispering
+Manor, uncover an inventor's disappearance, restore her Resonance Engine, and
+decide the fate of the Echo.
 
-All characters, environments, stories, and artwork are original. Every
-illustration is drawn in code; no image files are bundled.
+Prepared for **Kiroween 2026 · Costume Contest**. The intended public repository
+name is **`hauntquest-ai`**. These files are a local release preparation; no new
+GitHub repository, hosted demo or download URL is claimed here.
 
-## Status
+[Gameplay guide](docs/GAMEPLAY_GUIDE.md) · [Judge testing guide](docs/JUDGE_TESTING_GUIDE.md) ·
+[Kiro workflow](docs/KIRO_WORKFLOW.md) · [Architecture](docs/ARCHITECTURE.md) ·
+[Third-party notices](docs/THIRD_PARTY_NOTICES.md)
 
-Playable. Done:
+## The game
 
-- Full story content (five rooms, ten items, sixteen puzzles, seven linked dialogue
-  scenes, three endings) with automated validation.
-- The game interface: splash, main menu, save slots, illustrated room
-  exploration, inventory, puzzle screens, dialogue, journal and evidence board,
-  settings, and endings.
-- A pure-Dart game engine: move between rooms, examine and collect, use items,
-  solve puzzles, hold conversations that set story flags, and reach all three
-  endings. Locked doors explain themselves with a nudge, not the answer.
-- Puzzle inputs, attempts, hint tiers, solved states, and rewards persist to the device.
-- Display and accessibility settings apply immediately and are saved.
+A letter from Wren Dabney brings you to Vask Manor, where Ottoline Vask vanished
+while investigating a mysterious presence. Follow clues across five illustrated
+rooms, question the clockwork caretaker and the voices left behind, and choose
+between freedom, containment and guardianship.
 
-Original procedural ambience and feedback sounds are bundled locally. The echo
-frequency puzzle also includes visual pulses and written pitch clues, so every
-puzzle remains playable muted. Review mode reveals the manor for inspection.
+- **Five rooms:** Moonlit Entrance Hall, Forgotten Library, Alchemist's Workshop,
+  Clocktower Chamber and the Echo Vault.
+- **Sixteen playable puzzles:** visible clues, explicit player submissions,
+  meaningful incorrect-answer feedback, three hint tiers, persistent drafts and
+  solved states, and no repeat rewards. No generated configuration or external
+  service is needed.
+- **Inventory and investigation:** ten collectible items/clues, item inspection,
+  contextual item use, recipe combination, a journal with seventeen discoveries,
+  and nine authored evidence connections revealed after their endpoints are known.
+- **Branching narrative:** seven shared dialogue nodes, original character
+  portraits, skippable typewriter text, remembered decisions and read-only
+  transcripts. Three attainable endings have different requirements and reveals.
+- **The Whispering Guide:** optional contextual help with subtle, guided and
+  direct levels. The shipped companion is **rule-based and entirely offline**.
+  A provider-neutral interface exists, but no remote provider or AI-generated
+  prose is configured. Guide output never controls progression or rewards.
+- **Atmosphere:** original code-drawn scenes, fog and lighting, object feedback,
+  finite discovery/puzzle effects, room/page transitions and distinct ending art.
+  Twenty original synthesized sound assets cover ambience, interactions,
+  footsteps, discoveries, chapters and endings. Every sound puzzle is also visual.
+- **Persistence:** versioned autosaves retain room, inventory, consumed items,
+  puzzles, drafts, flags, conversations, journal and ending status. Checksummed
+  alternating snapshots recover a previous valid save. Version 1 migrates to
+  schema 2; malformed/future saves are handled without partially loading state.
+  New Game asks before replacing existing progress.
+- **Accessibility:** reduced motion (including the OS preference), high contrast,
+  text scaling/spacing, labeled controls, list-based room exploration, and master,
+  ambient/effects volume and mute. Audio and gameplay tickers pause in background.
 
-## The story
-
-A letter from a frightened apprentice calls you to The Whispering Manor, where
-the inventor Ottoline Vask vanished while chasing a phenomenon called the Echo.
-Investigate, restore her Resonance Engine, and decide the Echo's fate. The
-dependency map is in `docs/PROGRESSION_GRAPH.md`.
-
-## Playable puzzles
-
-Every puzzle requires a deliberate submission, provides contextual feedback and
-three hint tiers, and supports reopening without repeating rewards. Reset clears
-the apparatus while retaining attempts and revealed hints. All configurations are
-fixed and validated offline; no puzzle depends on an API or random generation.
-
-| Room | Puzzles |
+| Room | Playable puzzles |
 | --- | --- |
-| Moonlit Entrance Hall | Candle Moons; Wake the Caretaker; The Symbol Seal (substitution); The Silver Mirror (reflected grid) |
-| Forgotten Library | The Whispering Shelf (cipher); Torn Recipe; The Missing Runes (sequence gaps); The Evidence Board (deduction timeline) |
-| Alchemist's Workshop | Resonance Tuner; Corroded Cabinet; Moonwater Alchemy (ordered ingredients) |
-| Clocktower Chamber | Stopped Hands (11:40 clock alignment); Drive Gears; Constellation Discs (compass alignment) |
-| The Echo Vault | The Resonance Engine; The Echo Frequencies (pulse response) |
+| Entrance Hall | Candle Moons; Wake the Caretaker; The Symbol Seal; The Silver Mirror |
+| Library | The Whispering Shelf; Torn Recipe; The Missing Runes; The Evidence Board |
+| Workshop | Resonance Tuner; Corroded Cabinet; Moonwater Alchemy |
+| Clocktower | Stopped Hands; Drive Gears; Constellation Discs |
+| Vault | The Resonance Engine; The Echo Frequencies |
 
-The added apparatuses require earlier story discoveries and carried clue items.
-Their completed inscriptions reveal persistent story memories. Ingredients for
-the alchemy retort are supplied at the bench and are never depleted by mistakes.
+## Install and play
 
-Tests include positive and negative cases for every puzzle, exhaustive solution
-uniqueness checks, seeded randomized state transitions, save/reload and duplicate
-reward checks, real Flutter interactions, and progression through all endings.
+For the locally built Android package, use
+`build/app/outputs/flutter-apk/app-release.apk`. It is a **release-mode evaluation
+APK**, signed with the development certificate unless private signing is supplied.
+No account, subscription, API key or network connection is required to play.
 
-## Narrative and endings
+1. Copy the APK to an Android 7.0+ device and open it. Permit installation from the
+   file source if your device asks; disable that source permission afterward if desired.
+2. Alternatively, with Android Platform Tools and USB debugging enabled:
+   `adb install -r build/app/outputs/flutter-apk/app-release.apk`.
+3. Open **HauntQuest AI → Begin Quest**. Read or skip the introduction.
+4. Tap room objects, inspect clues, collect items and open puzzle apparatuses.
+   Use the inventory's item actions on compatible objects. Read dialogue choices
+   before committing; their consequences persist.
+5. Use **Journal**, the evidence board, room map and **Whispering Guide** when stuck.
+   Hints escalate only on request. **Check** submits a puzzle; reset clears its
+   current arrangement without removing solved progress or earned rewards.
+6. Leave and reopen the app, then choose **Continue → Resume**. The manor keeps
+   one active journey. After finishing, Continue can reopen the earned ending.
 
-Dialogue branches live in `assets/content/choices.json`. `NarrativeEngine` evaluates
-availability, reactions, transcripts and discoveries independently of Flutter.
-Choices resolve once; linked scenes share node IDs, and revisits are read-only
-transcripts of the exact exchange heard. Final decisions cannot be replayed.
-Leaving a conversation preserves it for later in the journal's Story tab.
+If Android reports an incompatible update signature, a differently signed build
+is already installed. Preserve that installation if its save matters; uninstalling
+it deletes its local journey. The public Android application ID is
+`io.github.myproject48.hauntquest`; old development installs using
+`com.example.hauntquest` are separate apps and do not share saves.
 
-The journal contains seventeen persistent discoveries and nine authored evidence
-connections. Connections appear only after both clues are discovered. Consumed
-items remain part of the investigation. Dialogue text supports tap-to-complete,
-a labeled “Show full text” button, screen readers, and reduced motion.
+For a complete, spoiler-marked route and all ending requirements, see the
+[gameplay guide](docs/GAMEPLAY_GUIDE.md). Judges can use the compact
+[testing checklist and demo route](docs/JUDGE_TESTING_GUIDE.md).
 
-| Ending | Requirements |
-| --- | --- |
-| Release the Echo | Restore the Resonance Engine, then choose freedom. Always available at the final decision. |
-| Seal the Echo | Restore the engine; learn the binding words, or complete Moonwater Alchemy and Constellation Discs. |
-| Become the Echo's Guardian | Restore the engine; learn four truths; show kindness twice; reject ownership; promise to listen; solve the Evidence Board and Echo Frequencies. |
+## Build from source
 
-Each ending has its own illustrated scene and finite reveal: rising lights for
-release, closing containment rings for sealing, and an open arch with two free
-lights for guardianship. Reveals are skippable and settle immediately with reduced
-motion. Completed autosaves can reopen their earned ending.
+Use a checkout/extracted source folder named `hauntquest-ai`; the internal Dart
+package remains `hauntquest`. No GitHub URL is needed to build locally.
 
-Validation checks narrative references, duplicate IDs, continuation cycles,
-unreachable scenes, journal references and every valid choice branch. Legacy saves
-migrate previous ending IDs and retain progress while scheduling new follow-ups.
-The compiled integration test plays from arrival through all five rooms to an
-ending using only player controls; it does not inject flags or use review mode.
+Verified toolchain: **Flutter 3.47.7 / Dart 3.13.5**, Android SDK with platform 36,
+NDK 28.2.13676358, Java 21 (the project targets JVM 17), Gradle 9.3.1 and AGP 9.1.0.
+The Dart SDK constraint is `^3.13.5`. Use the lockfile; do not upgrade dependencies
+while reproducing the submission. Python 3 is needed only for asset/notice tools.
 
-## The Whispering Guide
-
-Open the flare icon in a room, puzzle, or journal. The optional companion explains
-discovered evidence and offers **subtle → guided → direct** hints. Its local hint
-progression does not count puzzle attempts, reveal the puzzle screen's hints,
-modify inventory, resolve choices, award rewards, or write to the game save.
-Closing the panel resets its companion-only session; the real game is unchanged.
-
-| Capability | Shipped implementation |
-| --- | --- |
-| Contextual hints and evidence explanations | Deterministic, authored rules; fully offline. |
-| Discovery and spoiler filtering | Local rules based on the current room, encountered puzzles, acquired clues, recorded conversations, and puzzle progress. |
-| AI-generated prose | **Not enabled or displayed.** No live AI service is configured. |
-| Optional AI assistance | Provider-neutral interface for selecting approved passages; no remote implementation or vendor SDK is shipped. |
-
-Unseen puzzles and undiscovered evidence are absent from the focus list. Puzzle
-answer tiers remain locked until their clues and prerequisites are known. Merely
-examining a phonograph does not reveal its unheard recording. Evidence connections
-require both endpoints to be discovered. The companion never reads unchosen
-conversation options, ending rules, or future epilogues to construct guidance.
-
-`OfflineGuide` builds an immutable passage allowlist for one topic and hint level.
-`GuideService` optionally asks a configured `GuideProvider` to select from it. The
-provider receives only the intent, level and at most three approved passages with
-opaque local IDs—no save, full inventory, flags, choice history, player identifier,
-or free-form player input. Its only accepted response is:
-
-```json
-{"passageIds": ["p0"]}
-```
-
-At most two unique supplied IDs are accepted. Unknown IDs, extra fields, model
-prose, commands and malformed responses are rejected. Only exact local passage
-text can reach the panel, so a provider cannot invent spoilers or escalate the
-requested hint level. This constraint is deliberate: unrestricted generated prose
-cannot reliably be proven spoiler-free. Successful optional assistance is labeled
-**AI-assisted selection**, never AI-written narration.
-
-To add a real provider later, supply `guideProvider` to `AppServices.create` only
-after a suitable service is configured. Its adapter must call an authenticated
-backend proxy over HTTPS; model credentials belong in backend secret storage,
-never Dart code, assets, client headers or client build defines. No API key or
-endpoint is required for the shipped game. Optional assistance is off by default
-and requires the player's opt-in before any provider call. Turning it on does not
-itself send a request.
-
-Offline hints appear immediately. Optional requests have a three-second deadline;
-timeouts, failures and invalid responses retain the offline hint without exposing
-backend error text. Late responses are ignored after the room, discoveries,
-focus, consent or panel lifetime changes. The companion has no authoritative
-mutation capability; no provider result is interpreted as a game action.
-
-Tests cover discovery filtering, poisoned unseen story text, all hint levels,
-recording prerequisites, opt-in, failures, timeouts, malformed responses, stale
-requests, immutable requests, minimal payloads, 250 seeded adversarial selections,
-unchanged saves, and accessible phone/tablet layouts at enlarged text sizes.
-
-## Saves, sound and final effects
-
-Autosave schema **v2** stores the room, visited rooms, inventory and acquired/used
-items, exits, solved puzzles, drafts and attempts, dialogue flags and transcripts,
-pending conversations, discovered journal entry IDs, and ending status. Supported
-v1 saves migrate to v2, retaining legacy ending-ID migration and new follow-ups.
-Future-version saves are preserved and protected from automatic overwrite.
-
-Each local save uses an inactive, checksummed snapshot slot. The entire snapshot
-is written and verified before switching the commit pointer; the previous complete
-snapshot remains available as a backup. Reads verify checksums, required fields,
-content references, item integrity, room connectivity, rewards and final-decision
-agreement before accepting a state. Corrupt, incomplete or unsupported data never
-partially populates the game. Settings use the same alternating-slot mechanism.
-Writes are serialized, save failures are visible and retryable, and confirmed New
-Game waits behind older writes before clearing and saving the fresh journey.
-Continue and ending screens share the same New Game confirmation. Backgrounding
-flushes pending progress and persists current settings.
-
-Twenty original sound assets are synthesized by `tool/generate_audio.py` using only
-standard-library oscillators and deterministic noise—no music, recordings, external
-samples or downloads. Five eight-second room loops are joined by pickup, unlock,
-success, failure, footstep, discovery, chapter, interaction, three ending and four
-echo-frequency effects. Regenerate with `python3 tool/generate_audio.py`.
-The entire audio asset set is about 1.7 MB of 16 kHz, mono 16-bit PCM.
-
-Playback uses [audioplayers](https://pub.dev/packages/audioplayers), with one ambient
-player and a fixed three-voice effects pool. There is no position polling or
-runtime synthesis. Settings provide master, ambient and effects volume plus mute;
-slider changes apply immediately and commit on release. Audio stops when inactive,
-hidden or paused, resumes only ambient sound on foregrounding, respects iOS silent
-mode and Android audio focus, and releases resources when the app closes. Audio
-failures cannot change progression or stop the player completing a puzzle.
-
-Fog, lighting, room/page transitions, object press feedback and ending ceremonies
-are joined by finite discovery/unlock/puzzle bursts. Decorative discovery rays now
-settle instead of looping forever. The room background is static-cached while
-foreground ambience animates. A root lifecycle `TickerMode` mutes gameplay tickers
-in the background; reduced motion disables continuous motion and particle bursts.
-Native audio and Flutter controllers are explicitly disposed.
-
-Remaining limitations: the three **manual save slots** are placeholders; functional
-persistence is the active autosave plus its recovery backup. Mid-range Android
-FPS, real-device audio interruptions/headphone routing, and iOS hardware playback
-still need physical-device profiling; unit tests and
-build checks do not establish a sustained frame-rate guarantee. Local preference
-storage and two recovery slots reduce corruption risk but cannot guarantee survival
-of a device/storage failure that destroys every copy. The latest macOS native
-playthrough could not complete in this desktop session because the runner failed
-to foreground its window; rerun it with the app active. Unit/widget traversal and
-the Android debug build pass.
-
-## Targets
-
-- Android (primary; verified on an emulator with an integration test)
-- Flutter Web (release build verified)
-
-## Structure
-
-```
-lib/
-  app/            App root, services, settings, GameController
-  core/
-    design/       Tokens, theme extension, motion policy
-    theme/        Colors and ThemeData
-    painting/     All code-drawn art (rooms, objects, items, portraits, endings)
-    widgets/      Shared components (buttons, panels, fog, grain, typewriter)
-    navigation/   Page transition
-  content/        Pure-Dart content models, loader, and validation
-  domain/         Game state, engine, hints, puzzle evaluators (pure Dart)
-  features/       splash, menu, saves, intro, room, inventory, puzzle,
-                  dialogue, journal, settings, ending, about
-assets/content/   Story, rooms, items, puzzles, choices (JSON)
-docs/             Progression graph, licenses
-tool/             Content tooling
-```
-
-Regenerate the progression graph and validate content with
-`dart run tool/generate_progression_graph.dart`.
-
-## Run
-
-```
+```sh
+cd hauntquest-ai
+flutter doctor -v
 flutter pub get
-flutter run
 flutter analyze
 flutter test
-flutter test integration_test -d <device>   # complete five-room journey to an ending
+flutter run -d <android-device-id>
+flutter build apk --release
 ```
 
-## Kiro hooks
+The universal APK includes ARMv7, ARM64 and x86_64. The canonical output is:
 
-Agent hooks in `.kiro/hooks/` check formatting and analysis after Dart edits, keep `.kiro/` tracked in Git, and block agent commits that contain obvious secrets or build artifacts. See `docs/KIRO_WORKFLOW.md`. Before committing from a terminal, run `sh tool/hooks/run.sh scan`.
+```text
+build/app/outputs/flutter-apk/app-release.apk
+```
 
-A read-only custom agent, `.kiro/agents/game-quality-agent.md`, reviews puzzle solvability, accessibility, architecture and test coverage on request. What was used (and what was not: no MCP servers, no Powers) is in `docs/KIRO_ADVANCED_FEATURES.md`.
+Verify it with `test -s build/app/outputs/flutter-apk/app-release.apk` and, on
+macOS, `shasum -a 256 build/app/outputs/flutter-apk/app-release.apk` (Linux:
+`sha256sum`). See [release validation](docs/RELEASE_VALIDATION.md) for this build's
+exact size, hash and check results. Build outputs are intentionally Git-ignored.
+Attach the approved APK to a GitHub Release after publication approval.
+
+### If Android prerequisites are missing
+
+1. Install the specified Flutter SDK, add its `bin` directory to `PATH`, and install
+   Android Studio with Android SDK Command-line Tools and Platform Tools.
+2. In Android Studio's SDK Manager install Android SDK Platform 36, Build-Tools
+   36.0.0, and NDK (Side by side) 28.2.13676358. Or run:
+   `sdkmanager "platform-tools" "platforms;android-36" "build-tools;36.0.0" "ndk;28.2.13676358"`.
+3. Install JDK 21; use `flutter config --jdk-dir=<your-jdk-directory>` if Flutter
+   selects another Java. Set `ANDROID_HOME` to your SDK directory if not detected.
+   These are machine-local settings; do not commit `android/local.properties`.
+4. Run `flutter doctor --android-licenses`, accept licenses you are entitled to
+   accept, then `flutter doctor -v`. Resolve every Android toolchain error.
+5. Run `flutter pub get` and `flutter build apk --release` from the project root.
+   An internet connection is needed initially to obtain build dependencies, not
+   for installed Android gameplay.
+
+Reference: [Flutter's Android release instructions](https://docs.flutter.dev/deployment/android).
+
+### Private release signing
+
+The generated evaluation APK is optimized release code, not a Play Store upload
+signed with a privately managed release identity. For a durable public signing key:
+
+```sh
+keytool -genkeypair -v -keystore <private-location>/hauntquest-upload.jks \
+  -storetype JKS -keyalg RSA -keysize 2048 -validity 10000 -alias upload
+```
+
+Create **local, ignored** `android/key.properties` with `storeFile` (absolute path,
+use `/` separators), `storePassword`, `keyAlias`, and `keyPassword`. Enter real
+passwords only in that private file; never in source, documentation or command
+history. Rebuild with `flutter build apk --release`. Gradle uses private signing
+when that file exists and fails on incomplete configuration. Back up the key
+privately; updates must use the same identity. No key is created or published by
+this repository. Store account, signing ownership and store submission are separate
+release steps. An AAB can then be built with `flutter build appbundle --release`.
+
+## Platforms and minimum requirements
+
+| Platform | Status / requirements |
+| --- | --- |
+| Android | Primary release target. Android 7.0 / API 24 minimum, target API 36. ARMv7, ARM64 or x86_64; touch display. No runtime internet permission or login required. |
+| Web | Secondary source target: `flutter build web --release`, serve `build/web/` over HTTP. Browser audio may require a user gesture. Initial loading needs a host/network; no offline-install/PWA caching guarantee. |
+| iOS / macOS | Platform scaffolding is present; not distributed or certified for this release. Xcode, CocoaPods and appropriate signing are required. |
+| Windows / Linux | Platform scaffolding is present; not built or verified for this release. |
+
+Phone/tablet layouts are tested from 320 dp and with enlarged text. No measured
+minimum RAM, GPU or guaranteed frame rate is claimed. Physical-device performance,
+TalkBack and interruption/headphone behavior still need device testing.
+
+## Verification and contribution
+
+```sh
+flutter analyze
+flutter test
+flutter test integration_test/hall_and_library_test.dart -d <android-device-id>
+flutter test integration_test/restart_restore_test.dart -d <android-device-id>
+sh tool/hooks/run.sh scan
+python3 tool/check_release.py
+```
+
+The first device test plays all five rooms to Release the Echo using actual player
+controls, without injecting inventory or enabling review tools. The second rebuilds
+services and reloads platform preferences in the same process; a cold process
+restart is a separate judge checklist item. Keep the app foregrounded during native
+tests. Unit tests cover all three endings and valid narrative branches, puzzle
+uniqueness, wrong inputs, seeded state transitions, corruption recovery, settings,
+audio failures, accessibility and reduced motion. Release builds hide developer
+review tools by default; do not set `HQ_REVIEW_TOOLS=true` for submission.
+
+See [CONTRIBUTING.md](CONTRIBUTING.md). CI runs analysis, tests and an Android release
+build. It does not publish anything.
+
+## Kiro and repository structure
+
+Kiro's spec, steering, hook and custom-agent artifacts are included at the root in
+`.kiro/`. They document requirements, design, task planning, architecture constraints
+and automated checks. [KIRO_WORKFLOW.md](docs/KIRO_WORKFLOW.md) explains the recorded
+usage and its limits; no MCP server, Power or runtime Kiro service is claimed.
+The initial spec is historical: current release behavior is documented here and in
+[ARCHITECTURE.md](docs/ARCHITECTURE.md).
+
+```text
+.kiro/             Specs, steering, real hooks and agent configuration
+.github/           CI, issue and pull-request templates
+assets/content/    Authored story, rooms, items, puzzles, dialogue
+assets/audio/      Original generated local PCM audio
+lib/app/           Controllers, persistence, audio and guide coordination
+lib/domain/        Pure-Dart authoritative engine and rules
+lib/content/       Data models, loading and content validation
+lib/core/          Design system, illustrations and shared widgets
+lib/features/      Flutter screens and controls
+test/              Domain, content, UI and tool tests
+integration_test/  Compiled on-device journeys
+tool/              Asset generation, progression tooling and checks
+docs/              Gameplay, judging, architecture, workflow and notices
+```
+
+## License and remaining release steps
+
+Original code, narrative and assets are **MIT licensed** after the dependency/asset
+review recorded in [THIRD_PARTY_NOTICES.md](docs/THIRD_PARTY_NOTICES.md). Third-party
+licenses and copyright notices remain intact. All illustrations and audio are
+original; launcher assets have reproducible generators.
+
+The shipped game has one autosaved journey, no manual/cloud save slots, no remote
+AI service and no localization beyond English. Device profiling and broader native
+platform validation remain open. Public hosting, a GitHub Release/download link,
+a demonstration video and the Devpost form still require owner action. No repository
+rename, push, hosting deployment or contest submission has been performed by this
+release preparation. Use **`hauntquest-ai`** when approving the public repository name.

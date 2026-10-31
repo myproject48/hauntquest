@@ -1,3 +1,10 @@
+> Release note — November 1, 2026: this document retains the original planning
+> history. The implemented game now has 16 puzzles, Release/Seal/Guardian endings,
+> schema-v2 autosave, original audio and an offline Whispering Guide. Historical
+> unchecked tasks/earlier ending names are not the current feature inventory.
+> See [README](../../../README.md) and
+> [release validation](../../../docs/RELEASE_VALIDATION.md) for verified scope and limits.
+
 # Requirements Document
 
 ## Introduction
